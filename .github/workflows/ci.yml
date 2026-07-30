@@ -1,0 +1,31 @@
+# CI for the harness itself: shellcheck across every shell file and the bats
+# suite (stubbed claude, no live calls, no credentials needed).
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y shellcheck
+          shellcheck -s sh bin/diataxis lib/*.sh lib/adapters/*.sh tests/helpers/claude install.sh
+
+  bats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bats
+        run: sudo apt-get update -q && sudo apt-get install -y bats jq
+      - name: Run tests
+        run: bats tests/

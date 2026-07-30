@@ -1,0 +1,3112 @@
+{
+  "version": 1,
+  "pages": [
+    {
+      "slug": "explanation/audit-versus-check",
+      "mode": "explanation",
+      "path": "docs/explanation/audit-versus-check.md",
+      "inputs_hash": "sha256:c83996ae0025542d066ab28bdef7aef35dbeb03c66dd8ca8bf869783997a5bfb",
+      "prompt_version": "explanation@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 1.096373,
+      "verified": null,
+      "citations": [
+        {
+          "path": "share/integrations/github-actions-docs-check.yml",
+          "line_range": "1-10"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1074-1082"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1086-1096"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1111-1119"
+        },
+        {
+          "path": "README.md",
+          "line_range": "118-133"
+        },
+        {
+          "path": "schemas/audit.json",
+          "line_range": "15"
+        },
+        {
+          "path": "prompts/system/audit.md",
+          "line_range": "17-19"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "20-22"
+        },
+        {
+          "path": "README.md",
+          "line_range": "205-216"
+        },
+        {
+          "path": "README.md",
+          "line_range": "258-272"
+        },
+        {
+          "path": "README.md",
+          "line_range": "313-316"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "34"
+        },
+        {
+          "path": "prompts/system/audit.md",
+          "line_range": "9-13"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "audit_targets",
+          "line_range": "1026-1041"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_audit",
+          "line_range": "1043-1064"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_check",
+          "line_range": "1068-1120"
+        },
+        {
+          "path": "lib/render.sh",
+          "symbol": "render_audit_findings",
+          "line_range": "141-149"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "verify_citations",
+          "line_range": "271-316"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "require_bare_capable",
+          "line_range": "296-301"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "models_equivalent",
+          "line_range": "328-337"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "local_findings",
+          "line_range": "898-997"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "model_findings",
+          "line_range": "999-1024"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:7383457fc91fcd59a46abe4db57a935b42ad2f070802324b07ac5ddd0dcd68e2",
+      "generated_at": "2026-07-29T21:12:52Z",
+      "frozen": false
+    },
+    {
+      "slug": "explanation/language-adapter-architecture",
+      "mode": "explanation",
+      "path": "docs/explanation/language-adapter-architecture.md",
+      "inputs_hash": "sha256:40156f48945f04d8f551862181c8a9cd74046fe220e76aa9609404a3fc6a0618",
+      "prompt_version": "explanation@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 1.3728135,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "1-11"
+        },
+        {
+          "path": ".shellcheckrc",
+          "line_range": "1-4"
+        },
+        {
+          "path": "lib/adapters/python_ast.py",
+          "line_range": "1-7"
+        },
+        {
+          "path": "lib/adapters/go.sh",
+          "line_range": "22-31"
+        },
+        {
+          "path": "README.md",
+          "line_range": "235-238"
+        },
+        {
+          "path": "lib/adapters/typescript.sh",
+          "line_range": "24-34"
+        },
+        {
+          "path": "README.md",
+          "line_range": "240-256"
+        },
+        {
+          "path": "lib/adapters/go.sh",
+          "line_range": "32-83"
+        },
+        {
+          "path": "README.md",
+          "line_range": "327-330"
+        },
+        {
+          "path": "README.md",
+          "line_range": "336-340"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "line_range": "37-55"
+        },
+        {
+          "path": "lib/adapters/go.sh",
+          "line_range": "46-72"
+        },
+        {
+          "path": "prompts/task/reference.tmpl",
+          "line_range": "7-9"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "line_range": "95-118"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "974-996"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "13-24",
+          "symbol": "adapter_detect"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "196-208",
+          "symbol": "detect_adapter"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "210-215",
+          "symbol": "run_adapter"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "line_range": "23-35",
+          "symbol": "adapter_symbol_inventory"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "259-269",
+          "symbol": "full_symbol_inventory"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "275-293",
+          "symbol": "verify_citations"
+        },
+        {
+          "path": "lib/adapters/typescript.sh",
+          "line_range": "36-69",
+          "symbol": "_ts_inventory_typedoc"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "line_range": "37-73",
+          "symbol": "_rust_inventory_rustdoc"
+        },
+        {
+          "path": "lib/adapters/python_ast.py",
+          "line_range": "38-69",
+          "symbol": "emit"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "410-435",
+          "symbol": "derive_reference_pages"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "42-57",
+          "symbol": "_shell_source_files"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "59-108",
+          "symbol": "adapter_symbol_inventory"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "line_range": "66-91",
+          "symbol": "_python_inventory_griffe"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "line_range": "75-130",
+          "symbol": "_rust_inventory_grep"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "line_range": "93-118",
+          "symbol": "_python_inventory_grep"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:c4a1bcba5be9cbb0de2b2e6be2744fb0d34e144c4f35cf1f585d951186b6c90a",
+      "generated_at": "2026-07-29T21:39:36Z",
+      "frozen": false
+    },
+    {
+      "slug": "explanation/model-routing-and-cost",
+      "mode": "explanation",
+      "path": "docs/explanation/model-routing-and-cost.md",
+      "inputs_hash": "sha256:12bed4d4fae225a9957c53e4bba202dedd983482351d5e67a691600fedd5ac11",
+      "prompt_version": "explanation@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 1.5449424999999999,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/claude.sh",
+          "line_range": "105-121"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "17-26"
+        },
+        {
+          "path": "tests/argv.bats",
+          "line_range": "18-55"
+        },
+        {
+          "path": "README.md",
+          "line_range": "193-201"
+        },
+        {
+          "path": "schemas/config.json",
+          "line_range": "27-40"
+        },
+        {
+          "path": "README.md",
+          "line_range": "311-313"
+        },
+        {
+          "path": "README.md",
+          "line_range": "325-327"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "347-360"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "45-48"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "599-618"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "659-688"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "66-79"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "696-713"
+        },
+        {
+          "path": "schemas/config.json",
+          "line_range": "72-80"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "762-766"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "803-808"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "828-862"
+        },
+        {
+          "path": "README.md",
+          "line_range": "90-116"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "933-939"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_cost",
+          "line_range": "1124-1144"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "symbol": "budget_remaining",
+          "line_range": "136-141"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_cost",
+          "line_range": "141-143"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "symbol": "budget_require",
+          "line_range": "145-152"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_model_used",
+          "line_range": "145-155"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "symbol": "budget_add",
+          "line_range": "155-157"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "cfg_model",
+          "line_range": "173-175"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "cfg_effort",
+          "line_range": "177-179"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "cfg_all_models",
+          "line_range": "186-189"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "probe_models",
+          "line_range": "303-322"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "models_equivalent",
+          "line_range": "327-337"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_run",
+          "line_range": "38-131"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "symbol": "compute_inputs_hash",
+          "line_range": "63-81"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "config_default_json",
+          "line_range": "7-38"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "apply_page_result",
+          "line_range": "719-771"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_files_mode",
+          "line_range": "8-13"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:f4530bee59cf8531e69aff7e155a28cd31f07f5bc05224ef159acfba300c40f1",
+      "generated_at": "2026-07-29T21:39:37Z",
+      "frozen": false
+    },
+    {
+      "slug": "explanation/reproducibility-and-bare-mode",
+      "mode": "explanation",
+      "path": "docs/explanation/reproducibility-and-bare-mode.md",
+      "inputs_hash": "sha256:5742e9cbc4606ea4b75fd3ae4423aabce83435d1a2d94c8145e1e65e6f2eebad",
+      "prompt_version": "explanation@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 0.9796099999999999,
+      "verified": null,
+      "citations": [
+        {
+          "path": "bin/diataxis",
+          "line_range": "1068-1076"
+        },
+        {
+          "path": "README.md",
+          "line_range": "119-143"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "201-235"
+        },
+        {
+          "path": "schemas/config.json",
+          "line_range": "25-26"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "254-294"
+        },
+        {
+          "path": "tests/exitcodes.bats",
+          "line_range": "32-42"
+        },
+        {
+          "path": "README.md",
+          "line_range": "331-334"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "362-367"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "53-87"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "63-81"
+        },
+        {
+          "path": "tests/argv.bats",
+          "line_range": "78-96"
+        },
+        {
+          "path": "tests/doctor.bats",
+          "line_range": "90-94"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_check"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_doctor"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "preflight"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_run"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_system_prompt_file"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "cfg_settings_file"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "symbol": "compute_inputs_hash"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "EX_NOT_BARE_CAPABLE"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "check_auth"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "claude_auth_status_supported"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "preamble_run"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "probe_models"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "require_bare_capable"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "resolve_bare"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:70029ede91c514d8e0cb430155d7cfde864dcf974c37f5cfd485a678124e3215",
+      "generated_at": "2026-07-29T21:42:03Z",
+      "frozen": false
+    },
+    {
+      "slug": "explanation/staleness-idempotency-and-the-manifest",
+      "mode": "explanation",
+      "path": "docs/explanation/staleness-idempotency-and-the-manifest.md",
+      "inputs_hash": "sha256:f1e73489fa094dcfc2f8054d0902764af7d00c5e533c2939fee7a20f4ce3c4dc",
+      "prompt_version": "explanation@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.7364220000000001,
+      "verified": null,
+      "citations": [
+        {
+          "path": "README.md",
+          "line_range": "179-201"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "26-30"
+        },
+        {
+          "path": "README.md",
+          "line_range": "305-308"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "811-817"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1068-1120",
+          "symbol": "cmd_check"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "118-129",
+          "symbol": "page_is_frozen"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "16-22",
+          "symbol": "manifest_write"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "29-36",
+          "symbol": "manifest_upsert_page"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "318-325",
+          "symbol": "prompt_version_for"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "327-337",
+          "symbol": "models_equivalent"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "56-81",
+          "symbol": "compute_inputs_hash"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "577-585",
+          "symbol": "generate_one_page"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "773-810",
+          "symbol": "cmd_generate"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "83-91",
+          "symbol": "page_is_stale"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "900-949",
+          "symbol": "local_findings"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "95-116",
+          "symbol": "page_disk_status"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:e85d80dcf8b84e23c2e5acf14b3902fbf85dedbdb721e9d0ea9beaacd5770d7a",
+      "generated_at": "2026-07-29T21:06:28Z",
+      "frozen": false
+    },
+    {
+      "slug": "explanation/the-diataxis-mode-contract",
+      "mode": "explanation",
+      "path": "docs/explanation/the-diataxis-mode-contract.md",
+      "inputs_hash": "sha256:e3bba3601175c4e78e7bb717dc517a95573411216888cb8488eb2a9b1777c709",
+      "prompt_version": "explanation@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 1.4671480000000001,
+      "verified": null,
+      "citations": [
+        {
+          "path": "bin/diataxis",
+          "line_range": "1006-1012"
+        },
+        {
+          "path": "schemas/plan.json",
+          "line_range": "12-20"
+        },
+        {
+          "path": "README.md",
+          "line_range": "147-160"
+        },
+        {
+          "path": "prompts/system/plan.md",
+          "line_range": "16-20"
+        },
+        {
+          "path": "README.md",
+          "line_range": "306-311"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "38-46"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "476-488"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "490-493"
+        },
+        {
+          "path": "prompts/system/plan.md",
+          "line_range": "5"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "599-614"
+        },
+        {
+          "path": "prompts/system/howto.md",
+          "line_range": "7-8"
+        },
+        {
+          "path": "schemas/howto.json",
+          "line_range": "8-120"
+        },
+        {
+          "path": "prompts/system/audit.md",
+          "line_range": "9-14"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "125-138",
+          "symbol": "render_page"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "131-149",
+          "symbol": "mode_to_dir"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "17-25",
+          "symbol": "config_default_json"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "27-30",
+          "symbol": "PROMPT_VERSION_TUTORIAL"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "413-435",
+          "symbol": "derive_reference_pages"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "626-646",
+          "symbol": "generate_one_page"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "63-81",
+          "symbol": "compute_inputs_hash"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "733-748",
+          "symbol": "apply_page_result"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "9-21",
+          "symbol": "render_frontmatter"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "979-996",
+          "symbol": "local_findings"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "dir_to_mode"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "prompt_version_for"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_files_mode"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_structured"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:b308e77f32ebf168fe6d9465d0cb60480bb975d965ba823a82ec1e1d0b0fc45e",
+      "generated_at": "2026-07-29T21:06:28Z",
+      "frozen": false
+    },
+    {
+      "slug": "explanation/tutorial-verification-and-repair",
+      "mode": "explanation",
+      "path": "docs/explanation/tutorial-verification-and-repair.md",
+      "inputs_hash": "sha256:20fcab28383101b523b13b67ad44ba8cb017d6eac7e07c1bb273a90d39982c23",
+      "prompt_version": "explanation@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 1.156745,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/claude.sh",
+          "line_range": "1-5"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1011-1017"
+        },
+        {
+          "path": "prompts/system/audit.md",
+          "line_range": "11"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1117-1119"
+        },
+        {
+          "path": "prompts/task/tutorial.tmpl",
+          "line_range": "14"
+        },
+        {
+          "path": "tests/generate.bats",
+          "line_range": "142-158"
+        },
+        {
+          "path": "README.md",
+          "line_range": "171-177"
+        },
+        {
+          "path": "README.md",
+          "line_range": "229-231"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "28-33"
+        },
+        {
+          "path": "schemas/tutorial.json",
+          "line_range": "29-55"
+        },
+        {
+          "path": "schemas/config.json",
+          "line_range": "42-52"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "657-688"
+        },
+        {
+          "path": "tests/exitcodes.bats",
+          "line_range": "83-98"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1084-1096",
+          "symbol": "cmd_check"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "20-22",
+          "symbol": "EX_VERIFY_FAILED"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "519-540",
+          "symbol": "tutorial_extract_blocks"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "52-60",
+          "symbol": "claude_run"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "542-573",
+          "symbol": "tutorial_verify"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "690-713",
+          "symbol": "render_page"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "85-105",
+          "symbol": "render_tutorial_body"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "9-21",
+          "symbol": "render_frontmatter"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:bc3912ba84ac1981587dd75167ac121ad814d446284acf63efa9619e443fff3e",
+      "generated_at": "2026-07-29T21:16:40Z",
+      "frozen": false
+    },
+    {
+      "slug": "explanation/why-posix-shell-and-jq",
+      "mode": "explanation",
+      "path": "docs/explanation/why-posix-shell-and-jq.md",
+      "inputs_hash": "sha256:814f0ca0247567527330e1d9c604e6ea65e35affe351111c05287afca327288f",
+      "prompt_version": "explanation@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 1.2528875,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "1-24"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "line_range": "19-31"
+        },
+        {
+          "path": "README.md",
+          "line_range": "22-34"
+        },
+        {
+          "path": "README.md",
+          "line_range": "240-247"
+        },
+        {
+          "path": "README.md",
+          "line_range": "319-321"
+        },
+        {
+          "path": "README.md",
+          "line_range": "327-330"
+        },
+        {
+          "path": "README.md",
+          "line_range": "336-340"
+        },
+        {
+          "path": "install.sh",
+          "line_range": "44-49"
+        },
+        {
+          "path": "README.md",
+          "line_range": "63-65"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "84-89"
+        },
+        {
+          "path": "README.md",
+          "line_range": "9-11"
+        },
+        {
+          "path": ".shellcheckrc",
+          "line_range": "1-4",
+          "symbol": "SC1090"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "109-120",
+          "symbol": "render_template"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "118-170",
+          "symbol": "cfg"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "123-129",
+          "symbol": "awk_float_add"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "131-133",
+          "symbol": "claude_structured"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "155-194",
+          "symbol": "path_included"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "158-173",
+          "symbol": "glob_match"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "170-181",
+          "symbol": "check_jq"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "199-208",
+          "symbol": "detect_adapter"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "30-36",
+          "symbol": "manifest_upsert_page"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "305-322",
+          "symbol": "probe_models"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "43-101",
+          "symbol": "config_validate_jq"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "52-82",
+          "symbol": "claude_run"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "59-108",
+          "symbol": "adapter_symbol_inventory"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "62-66",
+          "symbol": "jesc"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "62-75",
+          "symbol": "version_ge"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "63-81",
+          "symbol": "compute_inputs_hash"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "79-85",
+          "symbol": "sha256_stream"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "8-24",
+          "symbol": "DIATAXIS_ROOT"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "91-101",
+          "symbol": "b64_decode"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:e9da9f219c22affea79c7aacb0d872ea9ea660cb029cf9d9b6760a7709abe965",
+      "generated_at": "2026-07-29T21:21:49Z",
+      "frozen": false
+    },
+    {
+      "slug": "explanation/why-the-harness-owns-the-filesystem",
+      "mode": "explanation",
+      "path": "docs/explanation/why-the-harness-owns-the-filesystem.md",
+      "inputs_hash": "sha256:85ad2cefbe9cefcad77f982ece04d7516154c4f63f722d99369e2286ddd788bb",
+      "prompt_version": "explanation@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 1.1921435,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/render.sh",
+          "line_range": "1-21"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "1-4"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "103-104"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "105-127"
+        },
+        {
+          "path": "README.md",
+          "line_range": "12-18"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "124-138"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "133-138"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "221-231"
+        },
+        {
+          "path": "README.md",
+          "line_range": "266-272"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "271-316"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "305-322"
+        },
+        {
+          "path": "README.md",
+          "line_range": "331-334"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "53-56"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "544-573"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "57-65"
+        },
+        {
+          "path": "tests/argv.bats",
+          "line_range": "57-69"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "575-577"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "648-655"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "718-771"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "75-79"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "846-869"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "89-94"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "apply_page_result"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "generate_one_page"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "verify_citations"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_run"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_structured"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "probe_models"
+        },
+        {
+          "path": "lib/render.sh",
+          "symbol": "render_page"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:1ecfe7928c9b51966d5d58beaa928c5471a1025b23df42a0cc5c51591e2dac49",
+      "generated_at": "2026-07-29T21:39:36Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/authenticate-runs-for-continuous-integration",
+      "mode": "howto",
+      "path": "docs/how-to/authenticate-runs-for-continuous-integration.md",
+      "inputs_hash": "sha256:aef6689b880eef5f7ecf47680c38dc2c6ad155c2c50bd2afba01e35a1ec85df9",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.32465999999999995,
+      "verified": null,
+      "citations": [
+        {
+          "path": "README.md",
+          "line_range": "117-143"
+        },
+        {
+          "path": "README.md",
+          "line_range": "258-272"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "80-83"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "EX_NOT_BARE_CAPABLE",
+          "line_range": "17-17"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "cfg_settings_file",
+          "line_range": "181-183"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "check_auth",
+          "line_range": "201-235"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "resolve_bare",
+          "line_range": "261-294"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "require_bare_capable",
+          "line_range": "296-301"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:cd734cd0a7dc33879dbba0a9ec9a2afac9b38201e8584273a0d17937c4894533",
+      "generated_at": "2026-07-29T21:39:36Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/configure-a-multi-language-monorepo",
+      "mode": "howto",
+      "path": "docs/how-to/configure-a-multi-language-monorepo.md",
+      "inputs_hash": "sha256:e295bde6db89b6d9331755d456596d5eb70ac838ee770c392084aef1f8afb359",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.36893469999999995,
+      "verified": null,
+      "citations": [
+        {
+          "path": "schemas/config.json",
+          "line_range": "10-22"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "11-12"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "detect_adapter",
+          "line_range": "196-208"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "workspaces_resolve_uncached",
+          "line_range": "227-241"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "full_symbol_inventory",
+          "line_range": "259-269"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:ac675a11409767caf5be354e95ab3247a79571aecf7bac3b01fb439814bf6779",
+      "generated_at": "2026-07-29T21:16:40Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/control-spend-with-a-budget",
+      "mode": "howto",
+      "path": "docs/how-to/control-spend-with-a-budget.md",
+      "inputs_hash": "sha256:76679659242f7c0702a81c5ecdc799a8ceddc64eefe7fae77699667993c7dd97",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.4138637,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/claude.sh",
+          "line_range": "75-79"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "83-83"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "112-113",
+          "symbol": "EX_BUDGET"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1124-1144",
+          "symbol": "cmd_cost"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "128-128",
+          "symbol": "budget_add"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "133-133",
+          "symbol": "DIATAXIS_RUN_SPENT"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "136-141",
+          "symbol": "budget_remaining"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "143-152",
+          "symbol": "budget_require"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "154-157",
+          "symbol": "budget_add"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "158-158",
+          "symbol": "DIATAXIS_BUDGET_USD"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "159-162",
+          "symbol": "manifest_total_cost"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "18-18",
+          "symbol": "EX_BUDGET"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "27-27",
+          "symbol": "budget_usd"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "838-838",
+          "symbol": "budget_require"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "96-96",
+          "symbol": "budget_require"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:c72114466286104cdd153eb0c3051005a6f706123a24eb9d13611643fbfa6fb5",
+      "generated_at": "2026-07-29T21:42:03Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/diagnose-environment-and-authentication-failures",
+      "mode": "howto",
+      "path": "docs/how-to/diagnose-environment-and-authentication-failures.md",
+      "inputs_hash": "sha256:6f2f112d56ef7dc40c4f893d2f906e58703ef1ffe3c0a3ad8eb371c80c7549f8",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.595164,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "5-25"
+        },
+        {
+          "path": "README.md",
+          "line_range": "67-88"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_doctor"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "check_auth"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "check_claude_on_path"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "check_claude_version"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "check_git"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "check_jq"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "check_writable"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "preamble_run"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "resolve_bare"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:3dcbd98aac2d43bbfe5cf048150b7835bb9f312bd40a15f9f3e15fe234826466",
+      "generated_at": "2026-07-29T21:07:09Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/gate-pull-requests-on-documentation-freshness",
+      "mode": "howto",
+      "path": "docs/how-to/gate-pull-requests-on-documentation-freshness.md",
+      "inputs_hash": "sha256:62625207386565391af8933ea775c279045a7de30e85a7c6dd72e6cfeee60e32",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.6109054999999999,
+      "verified": null,
+      "citations": [
+        {
+          "path": "share/integrations/github-actions-docs-check.yml",
+          "line_range": "12-44"
+        },
+        {
+          "path": "README.md",
+          "line_range": "258-272"
+        },
+        {
+          "path": "README.md",
+          "line_range": "67-89"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "8-25"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_check"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "require_bare_capable"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:2179d1a491a9f517314cd00af51cffaedbbab2dc58d9b8312149faf00c3780ba",
+      "generated_at": "2026-07-29T21:07:09Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/inspect-a-run-without-calling-the-model",
+      "mode": "howto",
+      "path": "docs/how-to/inspect-a-run-without-calling-the-model.md",
+      "inputs_hash": "sha256:0bc17dd2d4465ea6e0a4e955e3595017698b6fdc5fb3cde9e9b0b5fb7b749b0f",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.3178981,
+      "verified": null,
+      "citations": [
+        {
+          "path": "bin/diataxis",
+          "line_range": "121-123"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "469-471"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "57-86"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "619-622"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "820-823"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "89-94"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_run"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:860c9ad0f06f2cc012cf1bd4ef87cc5486cb8d1aa56fd3e147dc7a266be6d93b",
+      "generated_at": "2026-07-29T21:43:49Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/protect-hand-written-pages-from-regeneration",
+      "mode": "howto",
+      "path": "docs/how-to/protect-hand-written-pages-from-regeneration.md",
+      "inputs_hash": "sha256:873880d22624bf1047b7fa126f8ce672bf5c1ebc64401c59873b2a70a97d0f87",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.3396124,
+      "verified": null,
+      "citations": [
+        {
+          "path": "bin/diataxis",
+          "line_range": "1163-1171"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "789-800"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "118-129",
+          "symbol": "page_is_frozen"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "9-21",
+          "symbol": "render_frontmatter"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "95-116",
+          "symbol": "page_disk_status"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:066006ab05782953b625511f7f58a362367f83d2407eb164e86144d44a1eeeeb",
+      "generated_at": "2026-07-29T21:17:37Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/regenerate-a-single-page",
+      "mode": "howto",
+      "path": "docs/how-to/regenerate-a-single-page.md",
+      "inputs_hash": "sha256:ad5835322ed18e1571c821dac9a1e9a11188681c0888a9c1e4f99a8c82c89d99",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.5543574,
+      "verified": null,
+      "citations": [
+        {
+          "path": "bin/diataxis",
+          "line_range": "789-810"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "504-517",
+          "symbol": "plan_pages_filtered"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "80-102",
+          "symbol": "DIATAXIS_FORCE"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "symbol": "page_is_frozen"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "symbol": "page_is_stale"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:05ffbde4f658026946eb3cca47e51dc486f39feb5a87ecd281668d567387d24d",
+      "generated_at": "2026-07-29T21:07:09Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/remove-generated-pages-that-left-the-plan",
+      "mode": "howto",
+      "path": "docs/how-to/remove-generated-pages-that-left-the-plan.md",
+      "inputs_hash": "sha256:f13f9ff9005a49ba2aa46bad7bae4c2624bb49165852e8d4c752e0a538741b98",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.2984306,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "100-116",
+          "symbol": "page_disk_status"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1148-1181",
+          "symbol": "cmd_clean"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "118-129",
+          "symbol": "page_is_frozen"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "39-44",
+          "symbol": "manifest_delete_page"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:a72e7afcd51bfc16e872e532d162e8e203185ad020a8649b53bc776c137bfe9a",
+      "generated_at": "2026-07-29T21:28:05Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/resolve-audit-findings",
+      "mode": "howto",
+      "path": "docs/how-to/resolve-audit-findings.md",
+      "inputs_hash": "sha256:6c6f49077870f36f1c0f880b643362f8b9365dc548fce3e9f5f6935af70ea3bb",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.37796090000000004,
+      "verified": null,
+      "citations": [
+        {
+          "path": "bin/diataxis",
+          "line_range": "1084-1096"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "34-34"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "951-972"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "974-996"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1043-1064",
+          "symbol": "cmd_audit"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "141-149",
+          "symbol": "render_audit_findings"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "900-949",
+          "symbol": "local_findings"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "999-1024",
+          "symbol": "model_findings"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:f00e7cd708a2276b46403b3cd209de30511e4c275d01543bd7a1250a5d120fc2",
+      "generated_at": "2026-07-29T21:17:37Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/review-and-edit-the-page-plan",
+      "mode": "howto",
+      "path": "docs/how-to/review-and-edit-the-page-plan.md",
+      "inputs_hash": "sha256:4514c355ca18c2e94fc6c1acb9b4285b57bf7652a268e5cad3cb6a184ef85dc5",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.4366693,
+      "verified": null,
+      "citations": [
+        {
+          "path": "README.md",
+          "line_range": "147-159"
+        },
+        {
+          "path": "README.md",
+          "line_range": "38-44"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "483-485"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "490-493"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_plan"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "derive_reference_pages"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "plan_pages_filtered"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "plan_path"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:db53fcb9b9dade3fa2757fccb787f17dc09bf29860d7d8e5e46fc9457da28713",
+      "generated_at": "2026-07-29T21:12:52Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/route-modes-to-different-models",
+      "mode": "howto",
+      "path": "docs/how-to/route-modes-to-different-models.md",
+      "inputs_hash": "sha256:e57bb3389faaace447740ecd9a21e181c9d12dda5da215b0161e0e0f12683698",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.2472027,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/config.sh",
+          "line_range": "17-26"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "45-74"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "599-614"
+        },
+        {
+          "path": "README.md",
+          "line_range": "90-115"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_run"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "cfg_effort"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "cfg_model"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:e43e6bbce4bc80d71589cde43ec202cc6491a10c7a6252ea626a64f7f49ae3d7",
+      "generated_at": "2026-07-29T21:42:03Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/run-a-large-generation-concurrently",
+      "mode": "howto",
+      "path": "docs/how-to/run-a-large-generation-concurrently.md",
+      "inputs_hash": "sha256:00019b89b0affd5c1876ca1266a0511a5c93b52d3ecd518d3f6b51ff595e3b76",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.3486498,
+      "verified": null,
+      "citations": [
+        {
+          "path": "bin/diataxis",
+          "line_range": "111-115"
+        },
+        {
+          "path": "README.md",
+          "line_range": "319-321"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "820-833"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "860-882"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "apply_page_result"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "generate_one_page"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:d21172c967cbb8db7423d7614ae85b371b950e77881b1e6c3e906e5ff23da512",
+      "generated_at": "2026-07-29T21:28:06Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/run-the-harness-test-suite",
+      "mode": "howto",
+      "path": "docs/how-to/run-the-harness-test-suite.md",
+      "inputs_hash": "sha256:36dcdaab5793a83817b43a3b886eb6f578488a9c3ba339af11ef2526ae2341eb",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.1951793,
+      "verified": null,
+      "citations": [
+        {
+          "path": ".shellcheckrc",
+          "line_range": "1-4"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "line_range": "15-23"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "line_range": "24-31"
+        },
+        {
+          "path": "README.md",
+          "line_range": "274-292"
+        },
+        {
+          "path": "tests/helpers/test_helper.bash",
+          "symbol": "dtx"
+        },
+        {
+          "path": "tests/helpers/test_helper.bash",
+          "symbol": "make_repo"
+        },
+        {
+          "path": "tests/helpers/test_helper.bash",
+          "symbol": "make_sandbox"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:c0803b732fcc413b4e9f508135f1cbbe87b59a31fce0225584847bcdc77f4432",
+      "generated_at": "2026-07-29T21:18:33Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/set-the-documentation-voice-and-style",
+      "mode": "howto",
+      "path": "docs/how-to/set-the-documentation-voice-and-style.md",
+      "inputs_hash": "sha256:a7390b051a8656316678900c09fd69f7f66ea796e3bae1bd21e3d83552bf6e5b",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.2197916,
+      "verified": null,
+      "citations": [
+        {
+          "path": "README.md",
+          "line_range": "226-228"
+        },
+        {
+          "path": "README.md",
+          "line_range": "305-308"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "35-35"
+        },
+        {
+          "path": "lib/claude.sh",
+          "symbol": "claude_system_prompt_file",
+          "line_range": "17-27"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "config_style_instructions",
+          "line_range": "193-211"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:246dab359b938b21f6d6f066965742243b565c0f5b491f185fa03c4ca47d59f9",
+      "generated_at": "2026-07-29T21:44:10Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/vendor-the-harness-into-a-repository",
+      "mode": "howto",
+      "path": "docs/how-to/vendor-the-harness-into-a-repository.md",
+      "inputs_hash": "sha256:de27d4acf1a7a7d0c126ddb6535f5187519d21609e70fbef6ea7f69159f86df5",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.39097449999999995,
+      "verified": null,
+      "citations": [
+        {
+          "path": "install.sh",
+          "line_range": "15-21"
+        },
+        {
+          "path": "README.md",
+          "line_range": "20-34"
+        },
+        {
+          "path": "install.sh",
+          "line_range": "40-56"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_doctor"
+        },
+        {
+          "path": "install.sh",
+          "symbol": "DEST"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:bde293c203623612c872a40ba8392c5da33243552202e93b103e6d2788dc9918",
+      "generated_at": "2026-07-29T21:12:52Z",
+      "frozen": false
+    },
+    {
+      "slug": "how-to/verify-tutorial-code-in-a-container",
+      "mode": "howto",
+      "path": "docs/how-to/verify-tutorial-code-in-a-container.md",
+      "inputs_hash": "sha256:5914231c0b06510defc06f94e34b162cb29ce7dfa64c3de9e6aad9573328258d",
+      "prompt_version": "howto@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.5296651000000001,
+      "verified": null,
+      "citations": [
+        {
+          "path": "bin/diataxis",
+          "line_range": "125-127"
+        },
+        {
+          "path": "README.md",
+          "line_range": "170-177"
+        },
+        {
+          "path": "README.md",
+          "line_range": "229-231"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "28-33"
+        },
+        {
+          "path": "schemas/config.json",
+          "line_range": "42-52"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "659-688"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "542-573",
+          "symbol": "tutorial_verify"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:0e16cf63350afe6344b24958ee57cd72f425d9f161d4fe2247b91a12b034bdb0",
+      "generated_at": "2026-07-29T21:42:03Z",
+      "frozen": false
+    },
+    {
+      "slug": "reference/bin",
+      "mode": "reference",
+      "path": "docs/reference/bin.md",
+      "inputs_hash": "sha256:940bc13644078cfbdc9f2d82cc56b166e5f1ce64f6922c5a413f6e80bd9b649f",
+      "prompt_version": "reference@1",
+      "model_requested": "claude-haiku-4-5",
+      "model_used": "claude-haiku-4-5",
+      "cost_usd": 0.1377752,
+      "verified": null,
+      "citations": [
+        {
+          "path": "bin/diataxis",
+          "line_range": "1-5"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1000-1024"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1026-1041"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1043-1064"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1068-1120"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1124-1144"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "1148-1181"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "125"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "131-139"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "141-149"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "158-173"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "17"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "179-194"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "199-208"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "212-215"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "220-225"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "246-257"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "261-269"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "27"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "275-316"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "28"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "29"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "30"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "318-325"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "328-337"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "347-368"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "372-378"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "382-406"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "413-435"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "437-500"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "505-517"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "521-540"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "545-573"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "577-714"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "62"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "63"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "64"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "65"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "66"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "67"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "68"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "69"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "70"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "71"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "719-771"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "773-894"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "900-997"
+        }
+      ],
+      "symbols": [
+        "DIATAXIS_BUDGET_USD",
+        "DIATAXIS_CONCURRENCY",
+        "DIATAXIS_CONFIG",
+        "DIATAXIS_DRY_RUN",
+        "DIATAXIS_FORCE",
+        "DIATAXIS_JSON",
+        "DIATAXIS_MODE",
+        "DIATAXIS_NO_COLOR",
+        "DIATAXIS_PAGE",
+        "DIATAXIS_ROOT",
+        "DIATAXIS_TMPDIR",
+        "DIATAXIS_VERBOSE",
+        "PROMPT_VERSION_EXPLANATION",
+        "PROMPT_VERSION_HOWTO",
+        "PROMPT_VERSION_REFERENCE",
+        "PROMPT_VERSION_TUTORIAL",
+        "apply_page_result",
+        "audit",
+        "audit_targets",
+        "check",
+        "clean",
+        "cost",
+        "derive_reference_pages",
+        "detect_adapter",
+        "diataxis",
+        "dir_to_mode",
+        "doctor",
+        "full_symbol_inventory",
+        "generate",
+        "generate_one_page",
+        "glob_match",
+        "init",
+        "local_findings",
+        "mode_to_dir",
+        "model_findings",
+        "models_equivalent",
+        "path_included",
+        "plan",
+        "plan_pages_filtered",
+        "preflight",
+        "prompt_version_for",
+        "run_adapter",
+        "tutorial_extract_blocks",
+        "tutorial_verify",
+        "verify_citations",
+        "workspace_sources",
+        "workspaces_resolved"
+      ],
+      "content_hash": "sha256:92fba36cd644aa5468902cf7aed796a9c745964a0cdf2863a75b7370fff85fca",
+      "generated_at": "2026-07-29T21:43:49Z",
+      "frozen": false
+    },
+    {
+      "slug": "reference/claude-diataxis",
+      "mode": "reference",
+      "path": "docs/reference/claude-diataxis.md",
+      "inputs_hash": "sha256:e87b78d17823b7776872bc883bc7a3dcba38dd50ea99f7d44fe6ba7eba0998bb",
+      "prompt_version": "reference@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.39084879999999994,
+      "verified": null,
+      "citations": [
+        {
+          "path": "install.sh",
+          "line_range": "1-63"
+        },
+        {
+          "path": "install.sh",
+          "line_range": "32-38"
+        },
+        {
+          "path": "install.sh",
+          "line_range": "15",
+          "symbol": "TARGET"
+        },
+        {
+          "path": "install.sh",
+          "line_range": "16",
+          "symbol": "DEST"
+        },
+        {
+          "path": "install.sh",
+          "line_range": "18-21",
+          "symbol": "die"
+        },
+        {
+          "path": "install.sh",
+          "line_range": "27",
+          "symbol": "self_dir"
+        },
+        {
+          "path": "install.sh",
+          "line_range": "29-38",
+          "symbol": "src"
+        }
+      ],
+      "symbols": [
+        "DEST",
+        "DIATAXIS_REPO_URL",
+        "TARGET",
+        "die",
+        "install.sh",
+        "self_dir",
+        "src"
+      ],
+      "content_hash": "sha256:ae503684ce1ac307414742ca6aaf81efbac9752bfe3fcc8ff2999cfea153b36f",
+      "generated_at": "2026-07-29T21:18:33Z",
+      "frozen": false
+    },
+    {
+      "slug": "reference/lib",
+      "mode": "reference",
+      "path": "docs/reference/lib.md",
+      "inputs_hash": "sha256:3faa5ea555f69ac1cd35e76471c5af7da18d6997b81b47926f48fd95f0b581e3",
+      "prompt_version": "reference@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.48946390000000006,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "100-116",
+          "symbol": "page_disk_status"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "103",
+          "symbol": "sha256_string"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "105",
+          "symbol": "iso_now"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "105-113",
+          "symbol": "config_find_path"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "107-122",
+          "symbol": "render_explanation_body"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "109-120",
+          "symbol": "render_template"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "118-161",
+          "symbol": "config_load"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "120-129",
+          "symbol": "page_is_frozen"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "123",
+          "symbol": "awk_float_lt"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "125-138",
+          "symbol": "render_page"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "126",
+          "symbol": "awk_float_sub"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "129",
+          "symbol": "awk_float_add"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "135-139",
+          "symbol": "doctor_ok"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "136-138",
+          "symbol": "claude_structured"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "136-141",
+          "symbol": "budget_remaining"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "141-143",
+          "symbol": "claude_cost"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "141-146",
+          "symbol": "doctor_fail"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "141-149",
+          "symbol": "render_audit_findings"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "145-152",
+          "symbol": "budget_require"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "148-154",
+          "symbol": "check_claude_on_path"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "148-155",
+          "symbol": "claude_model_used"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "155-157",
+          "symbol": "budget_add"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "156-168",
+          "symbol": "check_claude_version"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "160-162",
+          "symbol": "manifest_total_cost"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "164-170",
+          "symbol": "cfg"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "17-22",
+          "symbol": "manifest_write"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "17-27",
+          "symbol": "claude_system_prompt_file"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "170-181",
+          "symbol": "check_jq"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "173-175",
+          "symbol": "cfg_model"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "177-179",
+          "symbol": "cfg_effort"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "181-183",
+          "symbol": "cfg_settings_file"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "183-194",
+          "symbol": "check_git"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "186-189",
+          "symbol": "cfg_all_models"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "193-211",
+          "symbol": "config_style_instructions"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "197-199",
+          "symbol": "claude_auth_status_supported"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "201-235",
+          "symbol": "check_auth"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "237-252",
+          "symbol": "check_writable"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "25-27",
+          "symbol": "manifest_get_page"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "26-51",
+          "symbol": "render_reference_body"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "261-294",
+          "symbol": "resolve_bare"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "296-301",
+          "symbol": "require_bare_capable"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "30-36",
+          "symbol": "manifest_upsert_page"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "305-322",
+          "symbol": "probe_models"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "32-40",
+          "symbol": "setup_colors"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "325-331",
+          "symbol": "preamble_run"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "38-131",
+          "symbol": "claude_run"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "39-44",
+          "symbol": "manifest_delete_page"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "42",
+          "symbol": "log"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "43-101",
+          "symbol": "config_validate_jq"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "44",
+          "symbol": "warn"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "46-50",
+          "symbol": "verbose"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "48-52",
+          "symbol": "manifest_set_meta"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "52-57",
+          "symbol": "die"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "55-60",
+          "symbol": "render_related_jq"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "6",
+          "symbol": "manifest_path"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "62-75",
+          "symbol": "version_ge"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "62-83",
+          "symbol": "render_howto_body"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "63-81",
+          "symbol": "compute_inputs_hash"
+        },
+        {
+          "path": "lib/config.sh",
+          "line_range": "7-38",
+          "symbol": "config_default_json"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "79-85",
+          "symbol": "sha256_stream"
+        },
+        {
+          "path": "lib/claude.sh",
+          "line_range": "8-13",
+          "symbol": "claude_files_mode"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "8-14",
+          "symbol": "manifest_read"
+        },
+        {
+          "path": "lib/manifest.sh",
+          "line_range": "84-91",
+          "symbol": "page_is_stale"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "85-105",
+          "symbol": "render_tutorial_body"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "87",
+          "symbol": "sha256_file"
+        },
+        {
+          "path": "lib/render.sh",
+          "line_range": "9-21",
+          "symbol": "render_frontmatter"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "line_range": "91-101",
+          "symbol": "b64_decode"
+        }
+      ],
+      "symbols": [
+        "awk_float_add",
+        "awk_float_lt",
+        "awk_float_sub",
+        "b64_decode",
+        "budget_add",
+        "budget_remaining",
+        "budget_require",
+        "cfg",
+        "cfg_all_models",
+        "cfg_effort",
+        "cfg_model",
+        "cfg_settings_file",
+        "check_auth",
+        "check_claude_on_path",
+        "check_claude_version",
+        "check_git",
+        "check_jq",
+        "check_writable",
+        "claude_auth_status_supported",
+        "claude_cost",
+        "claude_files_mode",
+        "claude_model_used",
+        "claude_run",
+        "claude_structured",
+        "claude_system_prompt_file",
+        "compute_inputs_hash",
+        "config_default_json",
+        "config_find_path",
+        "config_load",
+        "config_style_instructions",
+        "config_validate_jq",
+        "die",
+        "doctor_fail",
+        "doctor_ok",
+        "iso_now",
+        "log",
+        "manifest_delete_page",
+        "manifest_get_page",
+        "manifest_path",
+        "manifest_read",
+        "manifest_set_meta",
+        "manifest_total_cost",
+        "manifest_upsert_page",
+        "manifest_write",
+        "page_disk_status",
+        "page_is_frozen",
+        "page_is_stale",
+        "preamble_run",
+        "probe_models",
+        "render_audit_findings",
+        "render_explanation_body",
+        "render_frontmatter",
+        "render_howto_body",
+        "render_page",
+        "render_reference_body",
+        "render_related_jq",
+        "render_template",
+        "render_tutorial_body",
+        "require_bare_capable",
+        "resolve_bare",
+        "setup_colors",
+        "sha256_file",
+        "sha256_stream",
+        "sha256_string",
+        "verbose",
+        "version_ge",
+        "warn"
+      ],
+      "content_hash": "sha256:6c3dc4ce7af024983c107a7e6b09123b3b333d0dcf0bf2348dc81b6993261192",
+      "generated_at": "2026-07-29T21:43:49Z",
+      "frozen": false
+    },
+    {
+      "slug": "reference/lib/adapters",
+      "mode": "reference",
+      "path": "docs/reference/lib/adapters.md",
+      "inputs_hash": "sha256:93a50431cbcd72fe08edefff3439fd7ff6ee6b36e6f710b77d9ea1a501fd7406",
+      "prompt_version": "reference@1",
+      "model_requested": "claude-sonnet-5",
+      "model_used": "claude-sonnet-5",
+      "cost_usd": 0.324266,
+      "verified": null,
+      "citations": [
+        {
+          "path": "lib/adapters/go.sh",
+          "symbol": "adapter_context_files",
+          "line_range": "12-20"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "adapter_context_files",
+          "line_range": "13-21"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "symbol": "adapter_context_files",
+          "line_range": "13-21"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "symbol": "adapter_detect",
+          "line_range": "13-24"
+        },
+        {
+          "path": "lib/adapters/typescript.sh",
+          "symbol": "adapter_context_files",
+          "line_range": "14-22"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "_python_interpreter",
+          "line_range": "23-29"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "symbol": "adapter_source_globs",
+          "line_range": "26-30"
+        },
+        {
+          "path": "lib/adapters/typescript.sh",
+          "symbol": "adapter_symbol_inventory",
+          "line_range": "27-34"
+        },
+        {
+          "path": "lib/adapters/go.sh",
+          "symbol": "adapter_symbol_inventory",
+          "line_range": "27-84"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "symbol": "adapter_symbol_inventory",
+          "line_range": "28-35"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "_python_source_files",
+          "line_range": "31-35"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "symbol": "adapter_context_files",
+          "line_range": "32-40"
+        },
+        {
+          "path": "lib/adapters/typescript.sh",
+          "symbol": "_ts_inventory_typedoc",
+          "line_range": "36-69"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "symbol": "_rust_inventory_rustdoc",
+          "line_range": "37-73"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "adapter_symbol_inventory",
+          "line_range": "41-55"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "symbol": "_shell_source_files",
+          "line_range": "44-57"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "symbol": "adapter_symbol_inventory",
+          "line_range": "59-108"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "_python_packages",
+          "line_range": "59-64"
+        },
+        {
+          "path": "lib/adapters/go.sh",
+          "symbol": "adapter_detect",
+          "line_range": "6-6"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "adapter_detect",
+          "line_range": "6-6"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "symbol": "adapter_detect",
+          "line_range": "6-6"
+        },
+        {
+          "path": "lib/adapters/typescript.sh",
+          "symbol": "adapter_detect",
+          "line_range": "6-6"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "_python_inventory_griffe",
+          "line_range": "66-91"
+        },
+        {
+          "path": "lib/adapters/typescript.sh",
+          "symbol": "_ts_source_files",
+          "line_range": "71-75"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "symbol": "_rust_inventory_grep",
+          "line_range": "75-130"
+        },
+        {
+          "path": "lib/adapters/typescript.sh",
+          "symbol": "_ts_inventory_grep",
+          "line_range": "77-119"
+        },
+        {
+          "path": "lib/adapters/go.sh",
+          "symbol": "adapter_source_globs",
+          "line_range": "8-10"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "adapter_source_globs",
+          "line_range": "8-11"
+        },
+        {
+          "path": "lib/adapters/rust.sh",
+          "symbol": "adapter_source_globs",
+          "line_range": "8-11"
+        },
+        {
+          "path": "lib/adapters/typescript.sh",
+          "symbol": "adapter_source_globs",
+          "line_range": "8-12"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "_python_inventory_grep",
+          "line_range": "93-118"
+        }
+      ],
+      "symbols": [
+        "_python_interpreter",
+        "_python_inventory_grep",
+        "_python_inventory_griffe",
+        "_python_packages",
+        "_python_source_files",
+        "_rust_inventory_grep",
+        "_rust_inventory_rustdoc",
+        "_shell_source_files",
+        "_ts_inventory_grep",
+        "_ts_inventory_typedoc",
+        "_ts_source_files",
+        "adapter_context_files (go.sh)",
+        "adapter_context_files (python.sh)",
+        "adapter_context_files (rust.sh)",
+        "adapter_context_files (shell.sh)",
+        "adapter_context_files (typescript.sh)",
+        "adapter_detect (go.sh)",
+        "adapter_detect (python.sh)",
+        "adapter_detect (rust.sh)",
+        "adapter_detect (shell.sh)",
+        "adapter_detect (typescript.sh)",
+        "adapter_source_globs (go.sh)",
+        "adapter_source_globs (python.sh)",
+        "adapter_source_globs (rust.sh)",
+        "adapter_source_globs (shell.sh)",
+        "adapter_source_globs (typescript.sh)",
+        "adapter_symbol_inventory (go.sh)",
+        "adapter_symbol_inventory (python.sh)",
+        "adapter_symbol_inventory (rust.sh)",
+        "adapter_symbol_inventory (shell.sh)",
+        "adapter_symbol_inventory (typescript.sh)"
+      ],
+      "content_hash": "sha256:924dfa0c5ebd8804a02097efb3cbb4408ce419b4994a9686ce9556520e93538c",
+      "generated_at": "2026-07-29T21:43:49Z",
+      "frozen": false
+    },
+    {
+      "slug": "tutorials/generate-your-first-documentation-set",
+      "mode": "tutorial",
+      "path": "docs/tutorials/generate-your-first-documentation-set.md",
+      "inputs_hash": "sha256:2bc18ccf06829c6ceafaf2c6872ccfcbce547e520c1f5dfe45f35a6d359bfdd8",
+      "prompt_version": "tutorial@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 1.9011654999999998,
+      "verified": true,
+      "citations": [
+        {
+          "path": "share/diataxis.config.example.json",
+          "line_range": "20-26"
+        },
+        {
+          "path": "README.md",
+          "line_range": "36-44"
+        },
+        {
+          "path": "install.sh",
+          "line_range": "44-63"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_check"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_cost"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_doctor"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_generate"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_init"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "cmd_plan"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "derive_reference_pages"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "tutorial_verify"
+        },
+        {
+          "path": "install.sh",
+          "symbol": "DIATAXIS_REPO_URL"
+        },
+        {
+          "path": "lib/adapters/python.sh",
+          "symbol": "adapter_detect"
+        },
+        {
+          "path": "lib/config.sh",
+          "symbol": "config_default_json"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "EX_STALE"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "check_auth"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "doctor_ok"
+        },
+        {
+          "path": "lib/preamble.sh",
+          "symbol": "require_bare_capable"
+        },
+        {
+          "path": "lib/render.sh",
+          "symbol": "render_frontmatter"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:4457be94d84350d6f6bd436b3d26adccbece619019a079f3120d41426722ce5c",
+      "generated_at": "2026-07-29T21:12:52Z",
+      "frozen": false
+    },
+    {
+      "slug": "tutorials/write-a-language-adapter",
+      "mode": "tutorial",
+      "path": "docs/tutorials/write-a-language-adapter.md",
+      "inputs_hash": "sha256:dec06db5897bb3105858ff2420737da6a59597b9dc14af283b3ec41d616e4c84",
+      "prompt_version": "tutorial@1",
+      "model_requested": "claude-opus-5",
+      "model_used": "claude-opus-5",
+      "cost_usd": 1.7200695,
+      "verified": true,
+      "citations": [
+        {
+          "path": "tests/fixtures/shell/golden-plan.json",
+          "line_range": "1"
+        },
+        {
+          "path": "tests/fixtures.bats",
+          "line_range": "10-25"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "196-215"
+        },
+        {
+          "path": "lib/adapters/go.sh",
+          "line_range": "22-31"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "259-269"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "32-40"
+        },
+        {
+          "path": "tests/fixtures.bats",
+          "line_range": "35-56"
+        },
+        {
+          "path": "bin/diataxis",
+          "line_range": "410-435"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "59-108"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "line_range": "6-11"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "detect_adapter"
+        },
+        {
+          "path": "bin/diataxis",
+          "symbol": "run_adapter"
+        },
+        {
+          "path": "lib/adapters/go.sh",
+          "symbol": "adapter_detect"
+        },
+        {
+          "path": "lib/adapters/shell.sh",
+          "symbol": "adapter_symbol_inventory"
+        },
+        {
+          "path": "tests/fixtures/shell/repo/lib/util.sh",
+          "symbol": "KEY_ROTATION_LIMIT"
+        },
+        {
+          "path": "tests/fixtures/shell/repo/lib/util.sh",
+          "symbol": "rotate_key"
+        },
+        {
+          "path": "tests/helpers/test_helper.bash",
+          "symbol": "make_repo"
+        }
+      ],
+      "symbols": [],
+      "content_hash": "sha256:5177d63afb779489a1fb97ed0fa9a5a436f70a95df5735d1d27fc0fedb03e93f",
+      "generated_at": "2026-07-29T21:28:06Z",
+      "frozen": false
+    }
+  ],
+  "auth_method": "subscription"
+}

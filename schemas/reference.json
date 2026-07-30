@@ -1,0 +1,134 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "title",
+    "summary",
+    "symbols"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 400
+    },
+    "symbols": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "kind",
+          "signature",
+          "description",
+          "citations"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "function",
+              "method",
+              "type",
+              "struct",
+              "interface",
+              "class",
+              "constant",
+              "variable",
+              "module",
+              "endpoint",
+              "cli_flag",
+              "config_key"
+            ]
+          },
+          "signature": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "type",
+                "description"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "optional": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "returns": {
+            "type": "string"
+          },
+          "raises": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "stability": {
+            "enum": [
+              "stable",
+              "beta",
+              "experimental",
+              "deprecated",
+              "internal"
+            ]
+          },
+          "since": {
+            "type": "string"
+          },
+          "citations": {
+            "$ref": "#/definitions/citations"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "line_range": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string",
+            "pattern": "^[-A-Za-z_$][-A-Za-z0-9_$.:#~]*$",
+            "description": "One identifier exactly as it appears in the source. Never a phrase or a comma-separated list; cite behavior with line_range instead."
+          }
+        }
+      }
+    }
+  }
+}

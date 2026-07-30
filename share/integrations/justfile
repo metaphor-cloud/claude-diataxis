@@ -1,0 +1,22 @@
+# Import from your justfile:  import 'diataxis/share/integrations/justfile'
+diataxis := "diataxis/bin/diataxis"
+
+# Generate documentation from the plan
+docs:
+    {{diataxis}} generate
+
+# Refresh the documentation page inventory
+docs-plan:
+    {{diataxis}} plan
+
+# CI gate: fail if docs are stale or failing audit
+docs-check:
+    {{diataxis}} check
+
+# Diataxis compliance review of existing docs
+docs-audit:
+    {{diataxis}} audit
+
+# Spend summary from the manifest
+docs-cost:
+    {{diataxis}} cost

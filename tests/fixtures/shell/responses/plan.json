@@ -1,0 +1,1 @@
+{"type":"result","result":"done","total_cost_usd":0.05,"modelUsage":{"claude-opus-5":{"outputTokens":900}},"structured_output":{"pages":[{"slug":"how-to/rotate-a-signing-key","mode":"howto","title":"Rotate a signing key","rationale":"exported entrypoint rotate_key","sources":["lib/util.sh"],"priority":1,"audience":"developer"}]}}

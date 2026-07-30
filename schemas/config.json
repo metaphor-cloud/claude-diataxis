@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "diataxis.config.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version"],
+  "properties": {
+    "version": {"type": "integer", "enum": [1]},
+    "docs_dir": {"type": "string"},
+    "workspaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path"],
+        "properties": {
+          "path": {"type": "string"},
+          "adapter": {"type": "string", "enum": ["auto", "rust", "go", "python", "typescript", "shell"]},
+          "name": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "include": {"type": "array", "items": {"type": "string"}},
+    "exclude": {"type": "array", "items": {"type": "string"}},
+    "bare": {"enum": ["auto", true, false]},
+    "settings_file": {"type": ["string", "null"]},
+    "models": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "plan": {"$ref": "#/definitions/model_entry"},
+        "tutorial": {"$ref": "#/definitions/model_entry"},
+        "explanation": {"$ref": "#/definitions/model_entry"},
+        "howto": {"$ref": "#/definitions/model_entry"},
+        "reference": {"$ref": "#/definitions/model_entry"},
+        "reference_bulk": {"$ref": "#/definitions/model_entry"},
+        "audit": {"$ref": "#/definitions/model_entry"},
+        "fallback": {"type": "string"}
+      }
+    },
+    "budget_usd": {"type": "number"},
+    "verify": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {"type": "string", "enum": ["sandbox", "off"]},
+        "required": {"type": "boolean"},
+        "max_repairs": {"type": "integer"},
+        "sandbox_command": {"type": ["string", "null"]},
+        "executable_languages": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fail_on": {"type": "array", "items": {"type": "string", "enum": ["error", "warning", "info"]}},
+        "model_audit_in_check": {"type": "boolean"}
+      }
+    },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "style_guide": {"type": "string", "enum": ["google", "microsoft"]},
+        "person": {"type": "string", "enum": ["second", "third"]},
+        "extra_instructions_file": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "definitions": {
+    "model_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model"],
+      "properties": {
+        "model": {"type": "string"},
+        "effort": {"type": "string", "enum": ["low", "medium", "high", "xhigh", "max"]}
+      }
+    }
+  }
+}

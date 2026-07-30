@@ -1,0 +1,433 @@
+{
+  "version": 1,
+  "generated_at": "2026-07-29T11:29:35Z",
+  "pages": [
+    {
+      "slug": "explanation/language-adapter-architecture",
+      "mode": "explanation",
+      "title": "Language adapter architecture",
+      "rationale": "Why an adapter is four shell functions rather than a plugin system, why every inventory record names its extraction strategy, why absent native tooling never fails a run, why Go always uses the awk pass, and why shell detects last.",
+      "sources": [
+        "lib/adapters/shell.sh",
+        "lib/adapters/rust.sh",
+        "lib/adapters/go.sh",
+        "lib/adapters/python.sh",
+        "lib/adapters/typescript.sh",
+        "bin/diataxis",
+        "README.md"
+      ],
+      "priority": 1,
+      "audience": "developer"
+    },
+    {
+      "slug": "explanation/staleness-idempotency-and-the-manifest",
+      "mode": "explanation",
+      "title": "Staleness, idempotency and the manifest",
+      "rationale": "Why inputs_hash and content_hash are separate concerns, what compute_inputs_hash covers in stable order, and how a committed manifest makes a second run do no work; readers who miss this misread every skip message.",
+      "sources": [
+        "lib/manifest.sh",
+        "bin/diataxis",
+        "README.md"
+      ],
+      "priority": 1,
+      "audience": "developer"
+    },
+    {
+      "slug": "explanation/the-diataxis-mode-contract",
+      "mode": "explanation",
+      "title": "The Diataxis mode contract",
+      "rationale": "Why every page carries exactly one mode, why reference pages come from derive_reference_pages instead of the model, why a two-goal how-to returns a split, and why more than three tutorials is warned about.",
+      "sources": [
+        "bin/diataxis",
+        "lib/render.sh",
+        "README.md"
+      ],
+      "priority": 1,
+      "audience": "developer"
+    },
+    {
+      "slug": "explanation/why-the-harness-owns-the-filesystem",
+      "mode": "explanation",
+      "title": "Why the harness owns the filesystem",
+      "rationale": "The central security and reviewability boundary: claude_run pins the model, allows only Read, Grep and Glob, forces --strict-mcp-config and schema-validated structured output, and only the shell writes to the tree, so a prompt injection in a source comment cannot touch the repository.",
+      "sources": [
+        "lib/claude.sh",
+        "bin/diataxis",
+        "README.md"
+      ],
+      "priority": 1,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/authenticate-runs-for-continuous-integration",
+      "mode": "howto",
+      "title": "Authenticate runs for continuous integration",
+      "rationale": "One goal distinct from doctor troubleshooting: supply bare-capable credentials so check does not exit 16, via claude setup-token, ANTHROPIC_API_KEY, or an apiKeyHelper through settings_file.",
+      "sources": [
+        "lib/preamble.sh",
+        "lib/claude.sh",
+        "lib/config.sh",
+        "README.md"
+      ],
+      "priority": 1,
+      "audience": "operator"
+    },
+    {
+      "slug": "how-to/diagnose-environment-and-authentication-failures",
+      "mode": "howto",
+      "title": "Diagnose environment and authentication failures",
+      "rationale": "One goal: turn a doctor failure into a fix, since each check in preamble_run exits with a distinct code from 10 to 16 and carries its own remediation line.",
+      "sources": [
+        "lib/preamble.sh",
+        "bin/diataxis",
+        "README.md"
+      ],
+      "priority": 1,
+      "audience": "operator"
+    },
+    {
+      "slug": "how-to/gate-pull-requests-on-documentation-freshness",
+      "mode": "howto",
+      "title": "Gate pull requests on documentation freshness",
+      "rationale": "One goal: run check only on pull requests and map its exit codes 30, 31 and 32 to a failing job; the shipped snippet under share/integrations has no derived reference page, so this page carries it.",
+      "sources": [
+        "bin/diataxis",
+        "lib/preamble.sh",
+        ".github/workflows/ci.yml",
+        "README.md"
+      ],
+      "priority": 1,
+      "audience": "operator"
+    },
+    {
+      "slug": "how-to/regenerate-a-single-page",
+      "mode": "howto",
+      "title": "Regenerate a single page",
+      "rationale": "One goal from the generate flags: narrow a run with --mode and --page (slug or docs path) and override the up-to-date skip with --force.",
+      "sources": [
+        "bin/diataxis",
+        "lib/manifest.sh"
+      ],
+      "priority": 1,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/review-and-edit-the-page-plan",
+      "mode": "howto",
+      "title": "Review and edit the page plan",
+      "rationale": "One goal from cmd_plan: read the .diataxis/plan.json diff before spending money, keep slugs stable across refreshes, and act on the more-than-three-tutorials warning and the slug-mode mismatch failure.",
+      "sources": [
+        "bin/diataxis",
+        "README.md",
+        "lib/config.sh"
+      ],
+      "priority": 1,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/vendor-the-harness-into-a-repository",
+      "mode": "howto",
+      "title": "Vendor the harness into a repository",
+      "rationale": "One goal from install.sh: get diataxis/ committed into a target repo by script, subtree or submodule, including the refuse-if-DEST-exists and starter-config behavior.",
+      "sources": [
+        "install.sh",
+        "README.md",
+        "bin/diataxis"
+      ],
+      "priority": 1,
+      "audience": "developer"
+    },
+    {
+      "slug": "tutorials/generate-your-first-documentation-set",
+      "mode": "tutorial",
+      "title": "Generate your first documentation set",
+      "rationale": "One beginner journey ending in a concrete artifact: a vendored harness, a config, a reviewed plan.json and a docs/ tree, following the README quick start order of doctor, init, plan, generate, check.",
+      "sources": [
+        "README.md",
+        "install.sh",
+        "bin/diataxis"
+      ],
+      "priority": 1,
+      "audience": "beginner"
+    },
+    {
+      "slug": "explanation/audit-versus-check",
+      "mode": "explanation",
+      "title": "Audit versus check",
+      "rationale": "Why the rule set splits into deterministic local rules that cost nothing and judgment rules that need a model call, why audit always exits 0 while check maps severities to exit codes, and why generation stays out of pull request CI.",
+      "sources": [
+        "bin/diataxis",
+        "lib/config.sh",
+        "lib/render.sh",
+        "README.md"
+      ],
+      "priority": 2,
+      "audience": "operator"
+    },
+    {
+      "slug": "explanation/model-routing-and-cost",
+      "mode": "explanation",
+      "title": "Model routing and cost",
+      "rationale": "Routing is by the judgment a mode requires, not output length: explains the Opus, Sonnet and Haiku split, why exact model ids beat family aliases, why fallback divergence marks a page stale instead of passing silently, and why Fable-tier models are refused.",
+      "sources": [
+        "lib/claude.sh",
+        "lib/config.sh",
+        "lib/manifest.sh",
+        "README.md"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "explanation/reproducibility-and-bare-mode",
+      "mode": "explanation",
+      "title": "Reproducibility and bare mode",
+      "rationale": "The sharpest tradeoff in the tool: --bare buys reproducibility by skipping hooks, plugins and CLAUDE.md but also skips keychain auth, which constrains how you authenticate; covers the auto resolution and why check refuses to run without it.",
+      "sources": [
+        "lib/preamble.sh",
+        "lib/claude.sh",
+        "README.md"
+      ],
+      "priority": 2,
+      "audience": "operator"
+    },
+    {
+      "slug": "explanation/tutorial-verification-and-repair",
+      "mode": "explanation",
+      "title": "Tutorial verification and repair",
+      "rationale": "Why tutorials are the one mode whose code is executed, how block extraction and the bounded repair loop feed failure output back into a regeneration, and what a verified: false page means downstream in check.",
+      "sources": [
+        "bin/diataxis",
+        "lib/render.sh",
+        "lib/config.sh",
+        "README.md"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/configure-a-multi-language-monorepo",
+      "mode": "howto",
+      "title": "Configure a multi-language monorepo",
+      "rationale": "One goal from the workspaces array: point the harness at several directories, pin or auto-detect an adapter per workspace, and namespace pages by workspace name.",
+      "sources": [
+        "lib/config.sh",
+        "bin/diataxis",
+        "lib/adapters/shell.sh"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/control-spend-with-a-budget",
+      "mode": "howto",
+      "title": "Control spend with a budget",
+      "rationale": "One goal from the cost accounting: cap a run with --budget-usd or budget_usd, read the breakdown from cost, and understand the refuse-to-start behavior that exits 20 instead of half-generating.",
+      "sources": [
+        "lib/manifest.sh",
+        "lib/claude.sh",
+        "bin/diataxis"
+      ],
+      "priority": 2,
+      "audience": "operator"
+    },
+    {
+      "slug": "how-to/protect-hand-written-pages-from-regeneration",
+      "mode": "howto",
+      "title": "Protect hand-written pages from regeneration",
+      "rationale": "One goal from the human-edit protection in manifest.sh: keep an edited or hand-authored page with frozen: true, and understand why the harness refuses to overwrite an edited or untracked page without --force.",
+      "sources": [
+        "lib/manifest.sh",
+        "bin/diataxis",
+        "lib/render.sh"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/resolve-audit-findings",
+      "mode": "howto",
+      "title": "Resolve audit findings",
+      "rationale": "One goal from the audit rubric: work through mode_mixing, title_not_task_shaped, unverified_code, broken_citation, stale, orphan and missing_reference, and apply the fix each finding names.",
+      "sources": [
+        "bin/diataxis",
+        "lib/render.sh",
+        "lib/config.sh"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/route-modes-to-different-models",
+      "mode": "howto",
+      "title": "Route modes to different models",
+      "rationale": "One goal from the models config block: override the per-mode model and effort, set the fallback, and control the reference_bulk route that triggers at 25 or more inventory symbols; the config keys have no derived reference page, so this page documents them.",
+      "sources": [
+        "lib/config.sh",
+        "lib/claude.sh",
+        "bin/diataxis",
+        "README.md"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/run-the-harness-test-suite",
+      "mode": "howto",
+      "title": "Run the harness test suite",
+      "rationale": "One goal for a contributor: run shellcheck and bats exactly as continuous integration does, using the hermetic PATH shim, and opt into the live smoke test with DIATAXIS_LIVE=1 under a capped budget.",
+      "sources": [
+        ".github/workflows/ci.yml",
+        "tests/helpers/test_helper.bash",
+        ".shellcheckrc",
+        "README.md"
+      ],
+      "priority": 2,
+      "audience": "contributor"
+    },
+    {
+      "slug": "how-to/verify-tutorial-code-in-a-container",
+      "mode": "howto",
+      "title": "Verify tutorial code in a container",
+      "rationale": "One goal from the verify config block: replace the default ephemeral host directory with a sandbox_command wrapper, and tune executable_languages and max_repairs.",
+      "sources": [
+        "bin/diataxis",
+        "lib/config.sh",
+        "README.md"
+      ],
+      "priority": 2,
+      "audience": "operator"
+    },
+    {
+      "slug": "reference/bin",
+      "mode": "reference",
+      "title": "bin reference",
+      "rationale": "derived mechanically from the symbol inventory",
+      "sources": [
+        "bin/diataxis"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "reference/claude-diataxis",
+      "mode": "reference",
+      "title": "claude-diataxis reference",
+      "rationale": "derived mechanically from the symbol inventory",
+      "sources": [
+        "install.sh"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "reference/lib",
+      "mode": "reference",
+      "title": "lib reference",
+      "rationale": "derived mechanically from the symbol inventory",
+      "sources": [
+        "lib/claude.sh",
+        "lib/config.sh",
+        "lib/manifest.sh",
+        "lib/preamble.sh",
+        "lib/render.sh"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "reference/lib/adapters",
+      "mode": "reference",
+      "title": "lib/adapters reference",
+      "rationale": "derived mechanically from the symbol inventory",
+      "sources": [
+        "lib/adapters/go.sh",
+        "lib/adapters/python.sh",
+        "lib/adapters/rust.sh",
+        "lib/adapters/shell.sh",
+        "lib/adapters/typescript.sh"
+      ],
+      "priority": 2,
+      "audience": "developer"
+    },
+    {
+      "slug": "explanation/why-posix-shell-and-jq",
+      "mode": "explanation",
+      "title": "Why POSIX shell and jq",
+      "rationale": "The implementation and anti-goal boundary: Bash 3.2 compatible shell with jq as the only parser keeps the harness vendorable into any repository with no language runtime dependency, and rules out a site generator, theme or plugin system.",
+      "sources": [
+        "bin/diataxis",
+        "lib/preamble.sh",
+        "lib/config.sh",
+        "README.md"
+      ],
+      "priority": 3,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/inspect-a-run-without-calling-the-model",
+      "mode": "howto",
+      "title": "Inspect a run without calling the model",
+      "rationale": "One goal from --dry-run: print the exact claude argv, one argument per line, to confirm model, effort, tool restrictions and budget flags before spending anything.",
+      "sources": [
+        "lib/claude.sh",
+        "bin/diataxis"
+      ],
+      "priority": 3,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/remove-generated-pages-that-left-the-plan",
+      "mode": "howto",
+      "title": "Remove generated pages that left the plan",
+      "rationale": "One goal from the clean subcommand: delete manifest-tracked pages that are no longer planned, while frozen and hand-edited pages survive without --force.",
+      "sources": [
+        "bin/diataxis",
+        "lib/manifest.sh"
+      ],
+      "priority": 3,
+      "audience": "developer"
+    },
+    {
+      "slug": "how-to/run-a-large-generation-concurrently",
+      "mode": "howto",
+      "title": "Run a large generation concurrently",
+      "rationale": "One goal from --concurrency: raise batch parallelism up to the cap of 4 for a first full generation, and know that workers only write to a temp directory while the parent applies every repository write and manifest update serially.",
+      "sources": [
+        "bin/diataxis",
+        "lib/manifest.sh",
+        "README.md"
+      ],
+      "priority": 3,
+      "audience": "operator"
+    },
+    {
+      "slug": "how-to/set-the-documentation-voice-and-style",
+      "mode": "howto",
+      "title": "Set the documentation voice and style",
+      "rationale": "One goal from the voice config block: pick a style guide and person, and append project-specific instructions through extra_instructions_file, which are merged into every system prompt in a temp directory.",
+      "sources": [
+        "lib/config.sh",
+        "lib/claude.sh",
+        "README.md"
+      ],
+      "priority": 3,
+      "audience": "developer"
+    },
+    {
+      "slug": "tutorials/write-a-language-adapter",
+      "mode": "tutorial",
+      "title": "Write a language adapter",
+      "rationale": "Learning by doing for a new contributor: implement the four adapter functions against a fixture repository and get a golden plan comparison passing, which carries too much scaffolding to be a recipe and ends in a working artifact.",
+      "sources": [
+        "lib/adapters/shell.sh",
+        "lib/adapters/go.sh",
+        "bin/diataxis",
+        "tests/helpers/test_helper.bash",
+        "tests/fixtures/shell/repo/lib/util.sh"
+      ],
+      "priority": 3,
+      "audience": "contributor"
+    }
+  ]
+}

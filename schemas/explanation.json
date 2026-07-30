@@ -1,0 +1,123 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "title",
+    "thesis",
+    "sections",
+    "citations"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "thesis": {
+      "type": "string"
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "heading",
+          "body"
+        ],
+        "properties": {
+          "heading": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "tradeoffs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "chose",
+          "rejected",
+          "because"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "chose": {
+            "type": "string"
+          },
+          "rejected": {
+            "type": "string"
+          },
+          "because": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "related": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "slug",
+          "mode"
+        ],
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "tutorial",
+              "howto",
+              "reference",
+              "explanation"
+            ]
+          }
+        }
+      }
+    },
+    "citations": {
+      "$ref": "#/definitions/citations"
+    }
+  },
+  "definitions": {
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "line_range": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string",
+            "pattern": "^[-A-Za-z_$][-A-Za-z0-9_$.:#~]*$",
+            "description": "One identifier exactly as it appears in the source. Never a phrase or a comma-separated list; cite behavior with line_range instead."
+          }
+        }
+      }
+    }
+  }
+}

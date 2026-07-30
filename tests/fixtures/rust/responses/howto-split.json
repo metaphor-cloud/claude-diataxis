@@ -1,0 +1,1 @@
+{"type":"result","result":"done","total_cost_usd":0.02,"modelUsage":{"claude-sonnet-5":{"outputTokens":100}},"structured_output":{"result":{"split":[{"slug":"how-to/rotate-a-key","title":"Rotate a key"},{"slug":"how-to/revoke-a-key","title":"Revoke a key"}]}}}

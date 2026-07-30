@@ -1,0 +1,1195 @@
+#!/bin/sh
+# diataxis: a vendorable documentation harness that drives the Claude CLI to
+# produce and maintain Diataxis-structured documentation for a codebase.
+# POSIX sh, Bash 3.2 compatible. Runtime deps: claude, jq, git, coreutils.
+set -eu
+
+# --- locate the harness root --------------------------------------------------
+prg=$0
+while [ -h "$prg" ]; do
+  dir=$(dirname -- "$prg")
+  prg=$(readlink -- "$prg") || break
+  case $prg in
+    /*) ;;
+    *) prg=$dir/$prg ;;
+  esac
+done
+DIATAXIS_ROOT=$(CDPATH='' cd -- "$(dirname -- "$prg")/.." && pwd)
+export DIATAXIS_ROOT
+
+. "$DIATAXIS_ROOT/lib/preamble.sh"
+. "$DIATAXIS_ROOT/lib/config.sh"
+. "$DIATAXIS_ROOT/lib/manifest.sh"
+. "$DIATAXIS_ROOT/lib/claude.sh"
+. "$DIATAXIS_ROOT/lib/render.sh"
+
+# Bumping a mode's version here invalidates every page of that mode.
+PROMPT_VERSION_TUTORIAL=1
+PROMPT_VERSION_HOWTO=1
+PROMPT_VERSION_REFERENCE=1
+PROMPT_VERSION_EXPLANATION=1
+
+usage() {
+  cat <<EOF
+usage: diataxis [global flags] <subcommand> [subcommand flags]
+
+subcommands:
+  doctor                 environment and auth checks, exit 0 or 1
+  init                   detect language, write diataxis.config.json, scaffold docs/
+  plan                   produce or refresh the page inventory, no prose written
+  generate [--mode M] [--page PATH] [--force]
+                         generate pages from the plan
+  audit [--page PATH]    Diataxis compliance review of existing docs
+  check                  CI mode: non-zero if any page is stale or failing audit
+  cost                   spend summary from the manifest
+  clean                  remove generated pages no longer in the plan
+
+global flags:
+  --config PATH          config file (default: <repo>/diataxis.config.json)
+  --budget-usd N         spend ceiling for this run (default: config budget_usd)
+  --concurrency N        parallel generations, default 1, cap 4
+  --dry-run              print the exact claude argv without executing
+  --verbose              chatty progress on stderr
+  --json                 machine-readable status on stdout
+  --no-color             disable colored output
+
+--mode accepts tutorial, howto, reference, explanation, or all (default).
+Exit codes are documented in README.md.
+EOF
+}
+
+# --- globals and argument parsing ---------------------------------------------
+DIATAXIS_CONFIG=''
+DIATAXIS_BUDGET_USD=${DIATAXIS_BUDGET_USD:-}
+DIATAXIS_CONCURRENCY=1
+DIATAXIS_DRY_RUN=0
+DIATAXIS_VERBOSE=0
+DIATAXIS_JSON=0
+DIATAXIS_NO_COLOR=0
+DIATAXIS_FORCE=0
+DIATAXIS_MODE=all
+DIATAXIS_PAGE=''
+subcommand=''
+
+need_value() {
+  if [ "$2" -lt 2 ]; then
+    die "$EX_GENERIC" "flag $1 requires a value"
+  fi
+}
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    --config)      need_value "$1" $#; DIATAXIS_CONFIG=$2; shift 2 ;;
+    --budget-usd)  need_value "$1" $#; DIATAXIS_BUDGET_USD=$2; shift 2 ;;
+    --concurrency) need_value "$1" $#; DIATAXIS_CONCURRENCY=$2; shift 2 ;;
+    --dry-run)     DIATAXIS_DRY_RUN=1; shift ;;
+    --verbose)     DIATAXIS_VERBOSE=1; shift ;;
+    --json)        DIATAXIS_JSON=1; shift ;;
+    --no-color)    DIATAXIS_NO_COLOR=1; shift ;;
+    --force)       DIATAXIS_FORCE=1; shift ;;
+    --mode)        need_value "$1" $#; DIATAXIS_MODE=$2; shift 2 ;;
+    --page)        need_value "$1" $#; DIATAXIS_PAGE=$2; shift 2 ;;
+    -h|--help)     usage; exit 0 ;;
+    doctor|init|plan|generate|audit|check|cost|clean)
+      if [ -n "$subcommand" ]; then
+        die "$EX_GENERIC" "more than one subcommand given: $subcommand and $1"
+      fi
+      subcommand=$1; shift ;;
+    *)
+      usage >&2
+      die "$EX_GENERIC" "unknown argument: $1" ;;
+  esac
+done
+
+export DIATAXIS_DRY_RUN DIATAXIS_VERBOSE DIATAXIS_JSON DIATAXIS_NO_COLOR
+setup_colors
+
+case "$DIATAXIS_MODE" in
+  tutorial|howto|reference|explanation|all) ;;
+  *) die "$EX_GENERIC" "--mode must be tutorial, howto, reference, explanation, or all" ;;
+esac
+case "$DIATAXIS_CONCURRENCY" in
+  ''|*[!0-9]*) die "$EX_GENERIC" "--concurrency must be a positive integer" ;;
+esac
+if [ "$DIATAXIS_CONCURRENCY" -lt 1 ]; then DIATAXIS_CONCURRENCY=1; fi
+if [ "$DIATAXIS_CONCURRENCY" -gt 4 ]; then DIATAXIS_CONCURRENCY=4; fi
+if [ -n "$DIATAXIS_BUDGET_USD" ]; then
+  case "$DIATAXIS_BUDGET_USD" in
+    ''|*[!0-9.]*) die "$EX_GENERIC" "--budget-usd must be a number" ;;
+  esac
+fi
+if [ "$DIATAXIS_DRY_RUN" -eq 1 ] && [ "$DIATAXIS_JSON" -eq 1 ]; then
+  die "$EX_GENERIC" "--dry-run and --json are mutually exclusive"
+fi
+
+DIATAXIS_TMPDIR=$(mktemp -d "${TMPDIR:-/tmp}/diataxis.XXXXXX")
+export DIATAXIS_TMPDIR
+trap 'rm -rf "$DIATAXIS_TMPDIR"' EXIT INT TERM
+
+# --- shared helpers -------------------------------------------------------------
+
+mode_to_dir() {
+  case "$1" in
+    tutorial) printf 'tutorials\n' ;;
+    howto) printf 'how-to\n' ;;
+    reference) printf 'reference\n' ;;
+    explanation) printf 'explanation\n' ;;
+    *) die "$EX_GENERIC" "unknown mode: $1" ;;
+  esac
+}
+
+dir_to_mode() {
+  case "$1" in
+    tutorials) printf 'tutorial\n' ;;
+    how-to) printf 'howto\n' ;;
+    reference) printf 'reference\n' ;;
+    explanation) printf 'explanation\n' ;;
+    *) printf '\n' ;;
+  esac
+}
+
+plan_path() { printf '%s\n' "$DIATAXIS_WORKSPACE/.diataxis/plan.json"; }
+
+page_doc_path() { printf '%s\n' "$DIATAXIS_WORKSPACE/$DIATAXIS_DOCS_DIR/$1.md"; }
+
+# glob_match PATH PATTERN: config include/exclude globs. ** is treated as *
+# (which crosses / in sh case patterns); a leading **/ also matches zero
+# directories deep.
+glob_match() {
+  _pat=$(printf '%s' "$2" | sed 's|\*\*|\*|g')
+  # shellcheck disable=SC2254 # patterns must stay unquoted to glob
+  case "$1" in
+    $_pat) return 0 ;;
+  esac
+  case "$_pat" in
+    \*/*)
+      # shellcheck disable=SC2254
+      case "$1" in
+        ${_pat#\*/}) return 0 ;;
+      esac
+      ;;
+  esac
+  return 1
+}
+
+# path_included PATH EXTRA_INCLUDE_GLOBS: a path is documentable when it
+# matches the config include globs or the adapter's source globs, and no
+# exclude glob. Runs in a subshell body so `set -f` (needed to stop the glob
+# patterns expanding against the cwd) cannot leak.
+path_included() (
+  set -f
+  _p=$1
+  _inc="$DIATAXIS_INCLUDE_GLOBS
+${2:-}"
+  _ok=1
+  # shellcheck disable=SC2086 # word splitting over glob lists is intended
+  for _g in $_inc; do
+    if glob_match "$_p" "$_g"; then _ok=0; break; fi
+  done
+  [ "$_ok" -eq 0 ] || return 1
+  for _g in $DIATAXIS_EXCLUDE_GLOBS; do
+    if glob_match "$_p" "$_g"; then return 1; fi
+  done
+  return 0
+)
+
+# detect_adapter WS_RELPATH: print the adapter that applies, or nothing.
+# shell is last: most repositories contain some shell, so it only claims a
+# workspace no other adapter recognises.
+detect_adapter() {
+  for _a in rust go python typescript shell; do
+    if (cd "$DIATAXIS_WORKSPACE/$1" \
+        && . "$DIATAXIS_ROOT/lib/adapters/$_a.sh" && adapter_detect) 2>/dev/null; then
+      printf '%s\n' "$_a"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# run_adapter ADAPTER WS_RELPATH FUNC: run one adapter function in a subshell
+# with cwd at the workspace, prefixing emitted paths is the caller's problem.
+run_adapter() {
+  (cd "$DIATAXIS_WORKSPACE/$2" \
+    && . "$DIATAXIS_ROOT/lib/adapters/$1.sh" && "$3")
+}
+
+# workspaces_resolved: one line per workspace: "path<TAB>adapter<TAB>name".
+# Auto adapters are detected; undetectable workspaces are skipped with a
+# warning. Cached per run so detection (and its warnings) happen once.
+workspaces_resolved() {
+  if [ ! -f "$DIATAXIS_TMPDIR/workspaces" ]; then
+    workspaces_resolve_uncached >"$DIATAXIS_TMPDIR/workspaces"
+  fi
+  cat "$DIATAXIS_TMPDIR/workspaces"
+}
+
+workspaces_resolve_uncached() {
+  cfg '.workspaces[]' | while IFS= read -r _ws; do
+    _wpath=$(printf '%s' "$_ws" | jq -r '.path')
+    _wadapter=$(printf '%s' "$_ws" | jq -r '.adapter // "auto"')
+    _wname=$(printf '%s' "$_ws" | jq -r '.name // empty')
+    if [ "$_wadapter" = "auto" ]; then
+      _wadapter=$(detect_adapter "$_wpath" || true)
+      if [ -z "$_wadapter" ]; then
+        warn "no adapter detected for workspace '$_wpath', skipping"
+        continue
+      fi
+    fi
+    printf '%s\t%s\t%s\n' "$_wpath" "$_wadapter" "$_wname"
+  done
+}
+
+# workspace_sources WS_RELPATH ADAPTER: repo-relative documentable source
+# files, filtered by config include/exclude plus the adapter's source globs
+# (matched workspace-relative).
+workspace_sources() {
+  _ws_globs=$(run_adapter "$2" "$1" adapter_source_globs 2>/dev/null || true)
+  (cd "$DIATAXIS_WORKSPACE/$1" && git ls-files) | while IFS= read -r _f; do
+    if path_included "$_f" "$_ws_globs"; then
+      if [ "$1" = "." ]; then
+        printf '%s\n' "$_f"
+      else
+        printf '%s/%s\n' "$1" "$_f"
+      fi
+    fi
+  done
+}
+
+# full_symbol_inventory: NDJSON of every workspace's inventory, paths made
+# repo-relative and each record annotated with workspace name and strategy.
+full_symbol_inventory() {
+  workspaces_resolved | while IFS='	' read -r _wp _wa _wn; do
+    run_adapter "$_wa" "$_wp" adapter_symbol_inventory \
+      | jq -c --arg wp "$_wp" --arg wn "$_wn" --arg wa "$_wa" \
+          '.path = (if $wp == "." then .path else $wp + "/" + .path end)
+           | .workspace = (if $wn == "" then $wp else $wn end)
+           | .adapter = $wa'
+  done
+}
+
+# verify_citations STRUCTURED_JSON: print one line per unresolved citation.
+# Empty output means every citation points at a real source location.
+# Fields are joined with the unit separator: tab is IFS whitespace, so empty
+# middle fields would collapse and shift the symbol into the wrong column.
+verify_citations() {
+  _us=$(printf '\037')
+  printf '%s' "$1" \
+    | jq -r --arg us "$_us" '[.. | objects | select(has("citations")) | .citations[]?]
+             | .[] | "\(.path)\($us)\(.line_range // "")\($us)\(.symbol // "")"' \
+    | sort -u \
+    | while IFS="$_us" read -r _cpath _crange _csym; do
+        [ -n "$_cpath" ] || continue
+        if [ ! -f "$DIATAXIS_WORKSPACE/$_cpath" ]; then
+          printf 'missing file: %s\n' "$_cpath"
+          continue
+        fi
+        if [ -n "$_crange" ]; then
+          _start=$(printf '%s' "$_crange" | sed 's/[^0-9].*//')
+          _lines=$(wc -l <"$DIATAXIS_WORKSPACE/$_cpath" | tr -d ' ')
+          if [ -n "$_start" ] && [ "$_start" -gt "$((_lines + 1))" ]; then
+            printf 'line %s beyond end of %s (%s lines)\n' "$_crange" "$_cpath" "$_lines"
+          fi
+        fi
+        if [ -n "$_csym" ]; then
+          # The schema constrains symbol to a single identifier, but older
+          # vendored schemas (or CLI versions that skip validation) can let
+          # comma-joined lists through; check each part. Qualified names
+          # (Class.method, mod::fn, Class#method) rarely appear verbatim in
+          # source, so each part falls back to its leaf identifier.
+          _missing=$(printf '%s\n' "$_csym" | tr ',' '\n' | while IFS= read -r _part; do
+            _part=$(printf '%s' "$_part" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+            [ -n "$_part" ] || continue
+            if ! grep -qF "$_part" "$DIATAXIS_WORKSPACE/$_cpath"; then
+              _leaf=$(printf '%s' "$_part" | sed 's/.*[.:#]//')
+              if [ -z "$_leaf" ] || ! grep -qF "$_leaf" "$DIATAXIS_WORKSPACE/$_cpath"; then
+                printf '%s\n' "$_part"
+              fi
+            fi
+          done)
+          if [ -n "$_missing" ]; then
+            printf 'symbol %s not found in %s\n' \
+              "$(printf '%s' "$_missing" | tr '\n' ' ')" "$_cpath"
+          fi
+        fi
+      done
+}
+
+prompt_version_for() {
+  case "$1" in
+    tutorial) printf 'tutorial@%s\n' "$PROMPT_VERSION_TUTORIAL" ;;
+    howto) printf 'howto@%s\n' "$PROMPT_VERSION_HOWTO" ;;
+    reference) printf 'reference@%s\n' "$PROMPT_VERSION_REFERENCE" ;;
+    explanation) printf 'explanation@%s\n' "$PROMPT_VERSION_EXPLANATION" ;;
+  esac
+}
+
+# models_equivalent A B: same model modulo a trailing dated suffix.
+models_equivalent() {
+  [ "$1" = "$2" ] && return 0
+  case "$2" in
+    "$1"-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]) return 0 ;;
+  esac
+  case "$1" in
+    "$2"-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]) return 0 ;;
+  esac
+  return 1
+}
+
+json_out() {
+  if [ "$DIATAXIS_JSON" -eq 1 ]; then
+    printf '%s\n' "$1"
+  fi
+}
+
+# --- doctor ---------------------------------------------------------------------
+
+cmd_doctor() {
+  DIATAXIS_DOCTOR_PRINT=1
+  preamble_run
+  config_load 1
+  if [ -z "${DIATAXIS_CONFIG_PATH:-}" ]; then
+    warn "no diataxis.config.json found; using defaults (run diataxis init)"
+  fi
+  resolve_bare "$(cfg -r '.bare')" "$(cfg_settings_file)"
+  check_writable "$DIATAXIS_DOCS_DIR"
+  if [ "${DIATAXIS_LIVE:-0}" = "1" ]; then
+    probe_models "$(cfg_all_models)"
+  else
+    doctor_ok "model probe skipped (set DIATAXIS_LIVE=1 to live-probe configured models)"
+  fi
+  log "doctor: all checks passed"
+  json_out "$(jq -nc \
+    --arg claude_version "$DIATAXIS_CLAUDE_VERSION" \
+    --arg auth_method "$DIATAXIS_AUTH_METHOD" \
+    --argjson bare_capable "$( [ "$DIATAXIS_BARE_CAPABLE" -eq 1 ] && printf 'true' || printf 'false')" \
+    '{command: "doctor", status: "ok", claude_version: $claude_version,
+      auth_method: $auth_method, bare_capable: $bare_capable}')"
+}
+
+# preflight: quiet doctor + config + bare resolution, used by every other
+# subcommand.
+preflight() {
+  DIATAXIS_DOCTOR_PRINT=0
+  preamble_run
+  config_load "${1:-0}"
+  resolve_bare "$(cfg -r '.bare')" "$(cfg_settings_file)"
+  check_writable "$DIATAXIS_DOCS_DIR"
+}
+
+# --- init -----------------------------------------------------------------------
+
+cmd_init() {
+  DIATAXIS_DOCTOR_PRINT=0
+  preamble_run
+  _cfg_file="$DIATAXIS_WORKSPACE/diataxis.config.json"
+  if [ -f "$_cfg_file" ]; then
+    warn "diataxis.config.json already exists, leaving it untouched"
+  else
+    _adapter=$(detect_adapter "." || true)
+    if [ -z "$_adapter" ]; then
+      warn "no language detected (looked for Cargo.toml, go.mod, pyproject.toml/setup.py, package.json+tsconfig.json, shell scripts); writing adapter \"auto\""
+      _adapter=auto
+    fi
+    config_default_json \
+      | jq --arg a "$_adapter" '.workspaces[0].adapter = $a' \
+      >"$_cfg_file"
+    log "wrote diataxis.config.json (adapter: $_adapter)"
+  fi
+  config_load 0
+  for _d in tutorials how-to reference explanation; do
+    mkdir -p "$DIATAXIS_WORKSPACE/$DIATAXIS_DOCS_DIR/$_d"
+  done
+  mkdir -p "$DIATAXIS_WORKSPACE/.diataxis"
+  log "scaffolded $DIATAXIS_DOCS_DIR/{tutorials,how-to,reference,explanation}/ and .diataxis/"
+  json_out '{"command":"init","status":"ok"}'
+}
+
+# --- plan -----------------------------------------------------------------------
+
+# derive_reference_pages: reference pages are derived mechanically from the
+# symbol inventory, one page per module, mirroring the source tree. The plan
+# model confirms coverage; it does not re-derive these.
+derive_reference_pages() {
+  _inv_file=$1
+  if [ ! -s "$_inv_file" ]; then
+    printf '[]\n'
+    return 0
+  fi
+  jq -sc --arg root "$(basename "$DIATAXIS_WORKSPACE")" '
+    def module_of($p):
+      ($p | split("/")[0:-1] | join("/")) as $d
+      | ($d | sub("^src/?"; "")) as $m
+      | if $m == "" or $m == "." then $root else $m end;
+    group_by(module_of(.path))
+    | map({
+        slug: ("reference/" + module_of(.[0].path)),
+        mode: "reference",
+        title: (module_of(.[0].path) + " reference"),
+        rationale: "derived mechanically from the symbol inventory",
+        sources: ([.[].path] | unique),
+        priority: 2,
+        audience: "developer"
+      })
+    | sort_by(.slug)' "$_inv_file"
+}
+
+cmd_plan() {
+  preflight
+  mkdir -p "$DIATAXIS_WORKSPACE/.diataxis"
+
+  log "plan: gathering sources, symbol inventory and context..."
+  _inv="$DIATAXIS_TMPDIR/inventory.ndjson"
+  full_symbol_inventory >"$_inv" || true
+  _ref_pages=$(derive_reference_pages "$_inv")
+
+  WORKSPACE_NAME=$(basename "$DIATAXIS_WORKSPACE")
+  SOURCE_FILES=$(workspaces_resolved | while IFS='	' read -r _wp _wa _wn; do
+    workspace_sources "$_wp" "$_wa"
+  done | LC_ALL=C sort -u)
+  CONTEXT_FILES=$(workspaces_resolved | while IFS='	' read -r _wp _wa _wn; do
+    run_adapter "$_wa" "$_wp" adapter_context_files | while IFS= read -r _f; do
+      [ "$_wp" = "." ] && printf '%s\n' "$_f" || printf '%s/%s\n' "$_wp" "$_f"
+    done
+  done | LC_ALL=C sort -u)
+  SYMBOL_SUMMARY=$(jq -r '"\(.path): \(.kind) \(.name)"' "$_inv" 2>/dev/null | head -400)
+  GIT_LOG=$(cd "$DIATAXIS_WORKSPACE" && git log --oneline -30 2>/dev/null || true)
+  DOCS_TREE=$(cd "$DIATAXIS_WORKSPACE" && find "$DIATAXIS_DOCS_DIR" -name '*.md' 2>/dev/null | LC_ALL=C sort || true)
+  REFERENCE_SLUGS=$(printf '%s' "$_ref_pages" | jq -r '.[].slug')
+  EXISTING_PLAN='(none)'
+  if [ -f "$(plan_path)" ]; then
+    EXISTING_PLAN=$(cat "$(plan_path)")
+  fi
+  export WORKSPACE_NAME SOURCE_FILES CONTEXT_FILES SYMBOL_SUMMARY GIT_LOG \
+    DOCS_TREE REFERENCE_SLUGS EXISTING_PLAN
+  _task=$(render_template "$DIATAXIS_ROOT/prompts/task/plan.tmpl")
+
+  _out="$DIATAXIS_TMPDIR/plan-out.json"
+  claude_run plan 24 "$_out" "$_task"
+  if [ "$DIATAXIS_DRY_RUN" -eq 1 ]; then
+    return 0
+  fi
+
+  _structured=$(claude_structured "$_out") \
+    || die "$EX_GENERIC" "plan call produced no schema-conforming output"
+
+  _model_pages=$(printf '%s' "$_structured" | jq -c '[.pages[] | select(.mode != "reference")]')
+  _bad_slug=$(printf '%s' "$_model_pages" | jq -r '
+    .[] | select(
+      (.mode == "tutorial" and (.slug | startswith("tutorials/") | not)) or
+      (.mode == "howto" and (.slug | startswith("how-to/") | not)) or
+      (.mode == "explanation" and (.slug | startswith("explanation/") | not))
+    ) | .slug' | head -1)
+  if [ -n "$_bad_slug" ]; then
+    die "$EX_GENERIC" "plan produced slug '$_bad_slug' that does not match its mode directory"
+  fi
+
+  _pages=$(jq -nc --argjson refs "$_ref_pages" --argjson model "$_model_pages" \
+    '($refs + $model) | unique_by(.slug) | sort_by(.priority, .slug)')
+
+  _tut_count=$(printf '%s' "$_pages" | jq '[.[] | select(.mode == "tutorial")] | length')
+  if [ "$_tut_count" -gt 3 ]; then
+    warn "plan wants $_tut_count tutorials; a repository should have one to three. Review .diataxis/plan.json before generating"
+  fi
+
+  jq -n --argjson pages "$_pages" --arg now "$(iso_now)" \
+    '{version: 1, generated_at: $now, pages: $pages}' >"$(plan_path)"
+  log "plan: wrote $(printf '%s' "$_pages" | jq 'length') pages to .diataxis/plan.json ($(printf '%s' "$_pages" | jq -r 'group_by(.mode) | map("\(.[0].mode): \(length)") | join(", ")'))"
+  json_out "$(jq -nc --argjson pages "$_pages" \
+    '{command: "plan", status: "ok", page_count: ($pages | length)}')"
+}
+
+# --- generate ---------------------------------------------------------------------
+
+# plan_pages_filtered: plan entries matching --mode and --page, one per line.
+plan_pages_filtered() {
+  if [ ! -f "$(plan_path)" ]; then
+    die "$EX_GENERIC" "no .diataxis/plan.json; run: diataxis plan"
+  fi
+  jq -c --arg mode "$DIATAXIS_MODE" --arg page "$DIATAXIS_PAGE" --arg docs "$DIATAXIS_DOCS_DIR" '
+    .pages[]
+    | select($mode == "all" or .mode == $mode)
+    | select($page == ""
+        or .slug == $page
+        or ($docs + "/" + .slug + ".md") == $page
+        or ($docs + "/" + .slug + ".md") == ($page | sub("^\\./"; "")))' \
+    "$(plan_path)"
+}
+
+# tutorial_extract_blocks STRUCTURED WORKDIR: write step-N.sh scripts for every
+# executable fenced block, replacing any scripts from a previous attempt.
+tutorial_extract_blocks() {
+  rm -f "$2"/step-*.sh
+  _langs=$(cfg '.verify.executable_languages')
+  printf '%s' "$1" | jq -r --argjson langs "$_langs" '
+    .steps | to_entries[]
+    | (.value.language // "") as $lang
+    | select(.value.code and (($langs | index($lang)) != null))
+    | [(.key | tostring), $lang, .value.code]
+    | map(@base64) | join("\t")' \
+  | while IFS='	' read -r _k64 _l64 _c64; do
+      _idx=$(printf '%s' "$_k64" | b64_decode)
+      _lang=$(printf '%s' "$_l64" | b64_decode)
+      if [ "$_lang" = "console" ]; then
+        # In console blocks only lines starting with "$ " are commands.
+        printf '%s' "$_c64" | b64_decode | sed -n 's/^\$ //p' >"$2/step-$_idx.sh"
+      else
+        printf '%s' "$_c64" | b64_decode >"$2/step-$_idx.sh"
+      fi
+    done
+}
+
+# tutorial_verify STRUCTURED WORKDIR: run every executable block in order in
+# an ephemeral directory (or through verify.sandbox_command). Prints a failure
+# report; empty output means verified.
+tutorial_verify() {
+  _vdir="$2/run"
+  rm -rf "$_vdir"
+  mkdir -p "$_vdir"
+  _sandbox=$(cfg -r '.verify.sandbox_command // empty')
+  tutorial_extract_blocks "$1" "$2"
+  # Numeric sort keeps step-10 after step-9. Step names are harness-generated
+  # (step-N.sh), so ls is safe here.
+  # shellcheck disable=SC2012
+  for _sname in $(cd "$2" && ls step-*.sh 2>/dev/null | sort -t- -k2 -n); do
+    _script="$2/$_sname"
+    [ -f "$_script" ] || continue
+    _outf="$2/$_sname.out"
+    _rc=0
+    if [ -n "$_sandbox" ]; then
+      (cd "$_vdir" && sh -c "$_sandbox \"\$1\"" verify "$_script" >"$_outf" 2>&1) || _rc=$?
+    else
+      (cd "$_vdir" && sh -e "$_script" >"$_outf" 2>&1) || _rc=$?
+    fi
+    if [ "$_rc" -ne 0 ]; then
+      printf 'step script %s exited %s\n' "$_sname" "$_rc"
+      printf 'command block:\n'
+      cat "$_script"
+      printf 'output (last 40 lines):\n'
+      tail -40 "$_outf"
+      return 0
+    fi
+  done
+}
+
+# generate_one_page PAGE_JSON OUTDIR: worker. Produces OUTDIR/meta.json and,
+# on success, OUTDIR/page.md. Never writes into the repository itself.
+generate_one_page() {
+  _page=$1
+  _odir=$2
+  mkdir -p "$_odir"
+  _slug=$(printf '%s' "$_page" | jq -r '.slug')
+  _mode=$(printf '%s' "$_page" | jq -r '.mode')
+  _title=$(printf '%s' "$_page" | jq -r '.title')
+  _sources=$(printf '%s' "$_page" | jq -r '.sources[]?')
+  _hash=$(compute_inputs_hash "$_mode" "$_sources" "$_page")
+
+  PAGE_SLUG=$_slug
+  PAGE_TITLE=$_title
+  PAGE_MODE=$_mode
+  PAGE_RATIONALE=$(printf '%s' "$_page" | jq -r '.rationale // ""')
+  PAGE_AUDIENCE=$(printf '%s' "$_page" | jq -r '.audience // "developer"')
+  SOURCE_PATHS=$_sources
+  DOCS_DIR=$DIATAXIS_DOCS_DIR
+  WORKSPACE_NAME=$(basename "$DIATAXIS_WORKSPACE")
+  PLAN_PAGES=$(jq -r '.pages[] | "\(.slug) (\(.mode)): \(.title)"' "$(plan_path)")
+  export PAGE_SLUG PAGE_TITLE PAGE_MODE PAGE_RATIONALE PAGE_AUDIENCE \
+    SOURCE_PATHS DOCS_DIR WORKSPACE_NAME PLAN_PAGES
+
+  _call_mode=$_mode
+  if [ "$_mode" = "reference" ]; then
+    _inv="$DIATAXIS_TMPDIR/inventory.ndjson"
+    if [ ! -f "$_inv" ]; then
+      full_symbol_inventory >"$_inv" || true
+    fi
+    SYMBOL_INVENTORY=$(jq -c --argjson srcs "$(printf '%s' "$_page" | jq -c '.sources // []')" \
+      'select(.path as $p | $srcs | index($p))' "$_inv")
+    export SYMBOL_INVENTORY
+    # Bulk symbol pass: a big already-extracted symbol list is a pure
+    # signature-to-prose transformation, which is Haiku work.
+    _sym_count=$(printf '%s\n' "$SYMBOL_INVENTORY" | grep -c . || true)
+    if [ "$_sym_count" -ge 25 ] && [ -n "$(cfg_model reference_bulk)" ]; then
+      _call_mode=reference_bulk
+    fi
+  fi
+
+  _task=$(render_template "$DIATAXIS_ROOT/prompts/task/$(claude_files_mode "$_call_mode").tmpl")
+  _out="$_odir/claude-out.json"
+  claude_run "$_call_mode" 24 "$_out" "$_task"
+  if [ "$DIATAXIS_DRY_RUN" -eq 1 ]; then
+    jq -nc --arg slug "$_slug" '{slug: $slug, status: "dry_run"}' >"$_odir/meta.json"
+    return 0
+  fi
+
+  _structured=$(claude_structured "$_out" || true)
+  # The howto schema nests its page-or-split oneOf under a result wrapper,
+  # because the API rejects oneOf at the top level of a tool input schema.
+  if [ "$_mode" = "howto" ] && [ -n "$_structured" ]; then
+    _structured=$(printf '%s' "$_structured" | jq -ce '.result // empty' || true)
+  fi
+  if [ -z "$_structured" ]; then
+    jq -nc --arg slug "$_slug" --arg err "no schema-conforming structured output" \
+      --arg cost "$(claude_cost "$_out")" \
+      '{slug: $slug, status: "failed", error: $err, cost_usd: ($cost | tonumber)}' \
+      >"$_odir/meta.json"
+    return 0
+  fi
+
+  # A how-to has exactly one goal. If the plan handed this page two, the
+  # model returns {"split": [...]} and the harness amends the plan.
+  if [ "$_mode" = "howto" ] \
+      && [ "$(printf '%s' "$_structured" | jq 'has("split")')" = "true" ]; then
+    printf '%s' "$_structured" | jq -c --arg slug "$_slug" --arg cost "$(claude_cost "$_out")" \
+      '{slug: $slug, status: "split", split: .split, cost_usd: ($cost | tonumber)}' \
+      >"$_odir/meta.json"
+    return 0
+  fi
+
+  _unresolved=$(verify_citations "$_structured")
+  if [ -n "$_unresolved" ]; then
+    jq -nc --arg slug "$_slug" --arg err "unresolved citations: $_unresolved" \
+      --arg cost "$(claude_cost "$_out")" \
+      '{slug: $slug, status: "failed", error: $err, cost_usd: ($cost | tonumber)}' \
+      >"$_odir/meta.json"
+    return 0
+  fi
+
+  _verified=''
+  _total_cost=$(claude_cost "$_out")
+  if [ "$_mode" = "tutorial" ] && [ "$(cfg -r '.verify.mode')" = "sandbox" ]; then
+    _max_repairs=$(cfg -r '.verify.max_repairs')
+    _attempt=0
+    log "  verifying tutorial $_slug (executing its code blocks)..."
+    _failures=$(tutorial_verify "$_structured" "$_odir")
+    while [ -n "$_failures" ] && [ "$_attempt" -lt "$_max_repairs" ]; do
+      _attempt=$((_attempt + 1))
+      log "  tutorial $_slug failed verification; repair attempt $_attempt of $_max_repairs"
+      _repair_task="$_task
+
+The previous attempt failed verification when its commands were executed:
+
+$_failures
+
+Repair the tutorial so that every step runs successfully in a fresh empty directory. Return the full corrected tutorial."
+      _rout="$_odir/claude-repair-$_attempt.json"
+      claude_run tutorial 12 "$_rout" "$_repair_task"
+      _total_cost=$(awk_float_add "$_total_cost" "$(claude_cost "$_rout")")
+      _rstructured=$(claude_structured "$_rout" || true)
+      if [ -n "$_rstructured" ]; then
+        _structured=$_rstructured
+        _failures=$(tutorial_verify "$_structured" "$_odir")
+      fi
+    done
+    if [ -n "$_failures" ]; then
+      _verified=false
+    else
+      _verified=true
+    fi
+  fi
+
+  printf '%s' "$_structured" \
+    | render_page "$_mode" "$_slug" "$_title" "$_verified" >"$_odir/page.md"
+
+  _citations=$(printf '%s' "$_structured" \
+    | jq -c '[.. | objects | select(has("citations")) | .citations[]?] | unique')
+  _symbols=$(printf '%s' "$_structured" | jq -c '[.symbols[]?.name] | unique')
+  jq -nc \
+    --arg slug "$_slug" \
+    --arg mode "$_mode" \
+    --arg path "$DIATAXIS_DOCS_DIR/$_slug.md" \
+    --arg inputs_hash "$_hash" \
+    --arg prompt_version "$(prompt_version_for "$_mode")" \
+    --arg model_requested "$(cfg_model "$_call_mode")" \
+    --arg model_used "$(claude_model_used "$_out")" \
+    --arg cost "$_total_cost" \
+    --arg verified "$_verified" \
+    --argjson citations "$_citations" \
+    --argjson symbols "$_symbols" \
+    '{slug: $slug, status: "ok", mode: $mode, path: $path,
+      inputs_hash: $inputs_hash, prompt_version: $prompt_version,
+      model_requested: $model_requested, model_used: $model_used,
+      cost_usd: ($cost | tonumber),
+      verified: (if $verified == "" then null else ($verified == "true") end),
+      citations: $citations, symbols: $symbols}' >"$_odir/meta.json"
+}
+
+# apply_page_result OUTDIR: parent-side merge of one worker's output.
+# Owns every write into the repository. Sets APPLY_STATUS. Must run in the
+# parent shell (not a command substitution) so budget_add actually counts.
+apply_page_result() {
+  _odir=$1
+  _meta="$_odir/meta.json"
+  APPLY_STATUS=failed
+  if [ ! -f "$_meta" ]; then
+    return 0
+  fi
+  _status=$(jq -r '.status' "$_meta")
+  _slug=$(jq -r '.slug' "$_meta")
+  _cost=$(jq -r '.cost_usd // 0' "$_meta")
+  budget_add "$_cost"
+  case "$_status" in
+    dry_run)
+      ;;
+    split)
+      _split=$(jq -c '.split' "$_meta")
+      _plan=$(cat "$(plan_path)")
+      printf '%s' "$_plan" | jq --arg slug "$_slug" --argjson split "$_split" '
+        (.pages[] | select(.slug == $slug)) as $orig
+        | .pages = ([.pages[] | select(.slug != $slug)]
+            + [$split[] | {
+                slug: .slug, mode: "howto", title: .title,
+                rationale: ("split from " + $slug + ": one goal per how-to"),
+                sources: ($orig.sources // []),
+                priority: ($orig.priority // 2),
+                audience: ($orig.audience // "developer")
+              }])' >"$(plan_path).tmp"
+      mv "$(plan_path).tmp" "$(plan_path)"
+      warn "how-to $_slug had more than one goal; plan amended with $(printf '%s' "$_split" | jq 'length') split pages. Run generate again to produce them"
+      ;;
+    failed)
+      warn "generation failed for $_slug: $(jq -r '.error' "$_meta")"
+      ;;
+    ok)
+      _path="$DIATAXIS_WORKSPACE/$(jq -r '.path' "$_meta")"
+      mkdir -p "$(dirname "$_path")"
+      cp "$_odir/page.md" "$_path"
+      _entry=$(jq -c \
+        --arg content_hash "sha256:$(sha256_file "$_path")" \
+        --arg now "$(iso_now)" \
+        'del(.status) + {content_hash: $content_hash, generated_at: $now, frozen: false}' \
+        "$_meta")
+      manifest_upsert_page "$_entry"
+      _req=$(jq -r '.model_requested' "$_meta")
+      _used=$(jq -r '.model_used' "$_meta")
+      if [ -n "$_used" ] && ! models_equivalent "$_req" "$_used"; then
+        warn "$_slug: model used ($_used) differs from requested ($_req); page is marked for regeneration"
+      fi
+      verbose "wrote $(jq -r '.path' "$_meta")"
+      ;;
+  esac
+  APPLY_STATUS=$_status
+}
+
+cmd_generate() {
+  preflight
+  if [ "$DIATAXIS_DRY_RUN" -ne 1 ]; then
+    mkdir -p "$DIATAXIS_WORKSPACE/.diataxis"
+    manifest_set_meta auth_method "\"$DIATAXIS_AUTH_METHOD\""
+  fi
+
+  _queue="$DIATAXIS_TMPDIR/queue"
+  : >"$_queue"
+  _skipped=0
+  plan_pages_filtered >"$DIATAXIS_TMPDIR/pages" || true
+  while IFS= read -r _page; do
+    [ -n "$_page" ] || continue
+    _slug=$(printf '%s' "$_page" | jq -r '.slug')
+    _mode=$(printf '%s' "$_page" | jq -r '.mode')
+    _docpath=$(page_doc_path "$_slug")
+    if page_is_frozen "$_slug" "$_docpath"; then
+      verbose "skip $_slug: frozen"
+      _skipped=$((_skipped + 1))
+      continue
+    fi
+    _disk=$(page_disk_status "$_slug" "$_docpath")
+    if { [ "$_disk" = "edited" ] || [ "$_disk" = "unknown" ]; } \
+        && [ "$DIATAXIS_FORCE" -ne 1 ]; then
+      warn "skip $_slug: $_docpath exists with changes diataxis did not generate. Pass --force to overwrite, or add 'frozen: true' to its frontmatter to keep it"
+      _skipped=$((_skipped + 1))
+      continue
+    fi
+    _sources=$(printf '%s' "$_page" | jq -r '.sources[]?')
+    _hash=$(compute_inputs_hash "$_mode" "$_sources" "$_page")
+    if [ "$DIATAXIS_FORCE" -ne 1 ] && [ "$_disk" != "absent" ] \
+        && ! page_is_stale "$_slug" "$_hash"; then
+      verbose "skip $_slug: up to date"
+      _skipped=$((_skipped + 1))
+      continue
+    fi
+    printf '%s\n' "$_page" >>"$_queue"
+  done <"$DIATAXIS_TMPDIR/pages"
+
+  _total=$(grep -c . "$_queue" 2>/dev/null || true)
+  if [ "${_total:-0}" -eq 0 ]; then
+    log "generate: nothing to do ($_skipped up to date or skipped)"
+    json_out '{"command":"generate","status":"ok","generated":0,"failed":0}'
+    return 0
+  fi
+  verbose "generate: $_total pages queued, $_skipped skipped, concurrency $DIATAXIS_CONCURRENCY"
+
+  _conc=$DIATAXIS_CONCURRENCY
+  if [ "$DIATAXIS_DRY_RUN" -eq 1 ]; then
+    _conc=1
+  fi
+  _i=0
+  _ok=0
+  _failed=0
+  _splits=0
+  while [ -s "$_queue" ]; do
+    _batch="$DIATAXIS_TMPDIR/batch"
+    head -"$_conc" "$_queue" >"$_batch"
+    _rest="$DIATAXIS_TMPDIR/queue.rest"
+    tail -n +"$((_conc + 1))" "$_queue" >"$_rest" || : >"$_rest"
+    mv "$_rest" "$_queue"
+
+    _dirs=''
+    while IFS= read -r _page; do
+      [ -n "$_page" ] || continue
+      budget_require "$(printf '%s' "$_page" | jq -r '.slug')"
+      _i=$((_i + 1))
+      log "[$_i/$_total] $(printf '%s' "$_page" | jq -r '"\(.slug) (\(.mode))"')"
+      _odir="$DIATAXIS_TMPDIR/page-$_i"
+      mkdir -p "$_odir"
+      _dirs="$_dirs $_odir"
+      # Workers run in subshells with captured stderr so a die() inside one
+      # cannot kill the run, and the parent can recognise usage-limit errors.
+      if [ "$_conc" -eq 1 ]; then
+        (generate_one_page "$_page" "$_odir") 2>"$_odir/stderr" || _wrc=$?
+        cat "$_odir/stderr" >&2 2>/dev/null || true
+        if [ "${_wrc:-0}" -ne 0 ] \
+            && ! grep -qiE 'session limit|rate limit|usage limit' "$_odir/stderr" 2>/dev/null; then
+          # Preserve mapped exit codes (model unavailable, budget) from the
+          # worker; limit errors fall through to the resumable abort below.
+          exit "$_wrc"
+        fi
+        _wrc=0
+      else
+        generate_one_page "$_page" "$_odir" 2>"$_odir/stderr" &
+      fi
+    done <"$_batch"
+    if [ "$_conc" -gt 1 ]; then
+      wait
+    fi
+
+    _limit_hit=0
+    for _odir in $_dirs; do
+      if [ "$_conc" -gt 1 ] && [ -s "$_odir/stderr" ]; then
+        cat "$_odir/stderr" >&2
+      fi
+      apply_page_result "$_odir"
+      case "$APPLY_STATUS" in
+        ok|dry_run) _ok=$((_ok + 1)) ;;
+        split) _splits=$((_splits + 1)) ;;
+        *) _failed=$((_failed + 1)) ;;
+      esac
+      if grep -qiE 'session limit|rate limit|usage limit' "$_odir/stderr" 2>/dev/null; then
+        _limit_hit=1
+      fi
+    done
+    if [ "$_limit_hit" -eq 1 ]; then
+      die "$EX_GENERIC" "usage limit hit; stopping instead of burning the rest of the queue. $_ok pages completed and are recorded in the manifest; re-run generate after the limit resets to continue where this run left off"
+    fi
+  done
+
+  log "generate: $_ok ok, $_failed failed, $_splits split, $_skipped skipped (spent \$$DIATAXIS_RUN_SPENT this run)"
+  json_out "$(jq -nc --argjson ok "$_ok" --argjson failed "$_failed" \
+    --argjson splits "$_splits" --argjson skipped "$_skipped" \
+    --arg spent "$DIATAXIS_RUN_SPENT" \
+    '{command: "generate", status: (if $failed > 0 then "failed" else "ok" end),
+      generated: $ok, failed: $failed, split: $splits, skipped: $skipped,
+      spent_usd: ($spent | tonumber)}')"
+  if [ "$_failed" -gt 0 ]; then
+    exit "$EX_GENERIC"
+  fi
+}
+
+# --- audit ----------------------------------------------------------------------
+
+# local_findings: deterministic audit rules computed without a model call.
+# Emits finding objects, one JSON per line.
+local_findings() {
+  _plan='{"pages":[]}'
+  if [ -f "$(plan_path)" ]; then
+    _plan=$(cat "$(plan_path)")
+  fi
+
+  # stale: source hash changed since the page was generated, the page was
+  # never generated, or the responding model diverged from the request.
+  printf '%s' "$_plan" | jq -c '.pages[]' | while IFS= read -r _page; do
+    _slug=$(printf '%s' "$_page" | jq -r '.slug')
+    _mode=$(printf '%s' "$_page" | jq -r '.mode')
+    if [ -n "$DIATAXIS_PAGE" ] && [ "$_slug" != "$DIATAXIS_PAGE" ]; then
+      continue
+    fi
+    _docpath=$(page_doc_path "$_slug")
+    if page_is_frozen "$_slug" "$_docpath"; then
+      continue
+    fi
+    _relpath="$DIATAXIS_DOCS_DIR/$_slug.md"
+    _entry=$(manifest_get_page "$_slug")
+    if [ -z "$_entry" ] || [ ! -f "$_docpath" ]; then
+      jq -nc --arg path "$_relpath" \
+        '{path: $path, severity: "error", rule: "stale", excerpt: "",
+          suggestion: "page is in the plan but has never been generated; run diataxis generate"}'
+      continue
+    fi
+    _sources=$(printf '%s' "$_page" | jq -r '.sources[]?')
+    _hash=$(compute_inputs_hash "$_mode" "$_sources" "$_page")
+    if page_is_stale "$_slug" "$_hash"; then
+      jq -nc --arg path "$_relpath" \
+        '{path: $path, severity: "error", rule: "stale", excerpt: "",
+          suggestion: "inputs changed since generation; run diataxis generate"}'
+    fi
+    _req=$(printf '%s' "$_entry" | jq -r '.model_requested // ""')
+    _used=$(printf '%s' "$_entry" | jq -r '.model_used // ""')
+    if [ -n "$_used" ] && ! models_equivalent "$_req" "$_used"; then
+      jq -nc --arg path "$_relpath" --arg e "requested $_req, got $_used" \
+        '{path: $path, severity: "error", rule: "stale", excerpt: $e,
+          suggestion: "a different model answered (fallback engaged); regenerate"}'
+    fi
+
+    # broken_citation: a cited path or symbol that no longer exists.
+    _cites=$(printf '%s' "$_entry" | jq -c '{citations: (.citations // [])}')
+    _unresolved=$(verify_citations "$_cites")
+    if [ -n "$_unresolved" ]; then
+      jq -nc --arg path "$_relpath" --arg e "$_unresolved" \
+        '{path: $path, severity: "error", rule: "broken_citation",
+          excerpt: ($e | split("\n")[0]), suggestion: "cited source moved or was deleted; regenerate the page"}'
+    fi
+  done
+
+  # orphan: a page in docs/ that is in no plan and has no frozen frontmatter.
+  if [ -d "$DIATAXIS_WORKSPACE/$DIATAXIS_DOCS_DIR" ]; then
+    (cd "$DIATAXIS_WORKSPACE" && find "$DIATAXIS_DOCS_DIR" -name '*.md' | LC_ALL=C sort) \
+    | while IFS= read -r _relpath; do
+        if [ -n "$DIATAXIS_PAGE" ]; then
+          case "$_relpath" in
+            *"$DIATAXIS_PAGE"*) ;;
+            *) continue ;;
+          esac
+        fi
+        _slug=${_relpath#"$DIATAXIS_DOCS_DIR"/}
+        _slug=${_slug%.md}
+        _in_plan=$(printf '%s' "$_plan" | jq -r --arg slug "$_slug" \
+          '[.pages[] | select(.slug == $slug)] | length')
+        if [ "$_in_plan" -eq 0 ] \
+            && ! page_is_frozen "$_slug" "$DIATAXIS_WORKSPACE/$_relpath"; then
+          jq -nc --arg path "$_relpath" \
+            '{path: $path, severity: "warning", rule: "orphan", excerpt: "",
+              suggestion: "not in the plan; add it to the plan, mark it frozen: true, or let diataxis clean remove it"}'
+        fi
+      done
+  fi
+
+  # missing_reference: an exported symbol with no reference entry.
+  _inv="$DIATAXIS_TMPDIR/inventory.ndjson"
+  if [ ! -f "$_inv" ]; then
+    full_symbol_inventory >"$_inv" || true
+  fi
+  if [ -s "$_inv" ]; then
+    _documented=$(manifest_read \
+      | jq -c '[.pages[] | select(.mode == "reference") | .symbols[]?] | unique')
+    jq -r --argjson doc "$_documented" \
+      'select((.visibility // "public") == "public")
+       | .name as $n
+       | select(($doc | index($n)) | not)
+       | "\(.path)\t\(.name)"' "$_inv" \
+    | while IFS='	' read -r _spath _sname; do
+        if [ -n "$DIATAXIS_PAGE" ]; then
+          continue
+        fi
+        jq -nc --arg path "$_spath" --arg name "$_sname" \
+          '{path: $path, severity: "warning", rule: "missing_reference",
+            excerpt: $name,
+            suggestion: ("exported symbol " + $name + " has no reference entry; re-run diataxis plan and generate")}'
+      done
+  fi
+}
+
+# model_findings: the Diataxis rubric applied by a model, per page.
+model_findings() {
+  _targets=$1
+  printf '%s\n' "$_targets" | while IFS= read -r _relpath; do
+    [ -n "$_relpath" ] || continue
+    _slug=${_relpath#"$DIATAXIS_DOCS_DIR"/}
+    _slug=${_slug%.md}
+    _claimed=$(sed -n '2,/^---$/p' "$DIATAXIS_WORKSPACE/$_relpath" 2>/dev/null \
+      | sed -n 's/^mode: //p' | head -1)
+    if [ -z "$_claimed" ]; then
+      _claimed=$(dir_to_mode "${_slug%%/*}")
+    fi
+    AUDIT_PAGE_PATH=$_relpath
+    AUDIT_PAGE_MODE=${_claimed:-unknown}
+    EXECUTABLE_LANGUAGES=$(cfg -r '.verify.executable_languages | join(", ")')
+    export AUDIT_PAGE_PATH AUDIT_PAGE_MODE EXECUTABLE_LANGUAGES
+    _task=$(render_template "$DIATAXIS_ROOT/prompts/task/audit.tmpl")
+    _out="$DIATAXIS_TMPDIR/audit-$(printf '%s' "$_slug" | tr '/' '-').json"
+    claude_run audit 24 "$_out" "$_task"
+    if [ "$DIATAXIS_DRY_RUN" -eq 1 ]; then
+      continue
+    fi
+    claude_structured "$_out" | jq -c --arg path "$_relpath" \
+      '.findings[]? | .path = $path' || true
+  done
+}
+
+audit_targets() {
+  if [ -n "$DIATAXIS_PAGE" ]; then
+    _p=$DIATAXIS_PAGE
+    case "$_p" in
+      "$DIATAXIS_DOCS_DIR"/*) ;;
+      *) _p="$DIATAXIS_DOCS_DIR/$_p" ;;
+    esac
+    case "$_p" in
+      *.md) ;;
+      *) _p="$_p.md" ;;
+    esac
+    printf '%s\n' "$_p"
+  else
+    (cd "$DIATAXIS_WORKSPACE" && find "$DIATAXIS_DOCS_DIR" -name '*.md' 2>/dev/null | LC_ALL=C sort)
+  fi
+}
+
+cmd_audit() {
+  preflight
+  _lf="$DIATAXIS_TMPDIR/local-findings.ndjson"
+  local_findings >"$_lf" || true
+  _mf="$DIATAXIS_TMPDIR/model-findings.ndjson"
+  model_findings "$(audit_targets)" >"$_mf" || true
+  if [ "$DIATAXIS_DRY_RUN" -eq 1 ]; then
+    return 0
+  fi
+  _all=$(cat "$_lf" "$_mf" 2>/dev/null | jq -sc '{findings: (. | unique)}')
+  _count=$(printf '%s' "$_all" | jq '.findings | length')
+  if [ "$DIATAXIS_JSON" -eq 1 ]; then
+    printf '%s' "$_all" | jq --arg cmd audit '{command: $cmd, findings: .findings}'
+  else
+    if [ "$_count" -eq 0 ]; then
+      log "audit: no findings"
+    else
+      printf '%s' "$_all" | render_audit_findings >&2
+      log "audit: $_count findings"
+    fi
+  fi
+}
+
+# --- check ----------------------------------------------------------------------
+
+cmd_check() {
+  preflight
+  require_bare_capable
+
+  _lf="$DIATAXIS_TMPDIR/local-findings.ndjson"
+  local_findings >"$_lf" || true
+  if [ "$(cfg -r '.audit.model_audit_in_check')" = "true" ]; then
+    model_findings "$(audit_targets)" >>"$_lf" || true
+  fi
+
+  _stale_count=$(jq -sc '[.[] | select(.rule == "stale")] | length' "$_lf")
+  _fail_on=$(cfg '.audit.fail_on')
+  _audit_fail_count=$(jq -sc --argjson sev "$_fail_on" \
+    '[.[] | select(.rule != "stale") | .severity as $s
+      | select(($sev | index($s)) != null)] | length' "$_lf")
+
+  # unverified tutorials fail check unless verify.required is false.
+  _unverified=0
+  if [ "$(cfg -r '.verify.required')" = "true" ] && [ -f "$(plan_path)" ]; then
+    # Note: jq's // treats false as empty, so test equality explicitly.
+    _unverified=$(jq -r '.pages[] | select(.mode == "tutorial") | .slug' "$(plan_path)" \
+      | while IFS= read -r _slug; do
+          _entry=$(manifest_get_page "$_slug")
+          if [ -n "$_entry" ] \
+              && [ "$(printf '%s' "$_entry" | jq -r '.verified == false')" = "true" ]; then
+            printf 'x\n'
+          fi
+        done | grep -c . || true)
+  fi
+
+  _findings_total=$(jq -sc 'length' "$_lf")
+  if [ "$DIATAXIS_JSON" -eq 1 ]; then
+    jq -sc --argjson stale "$_stale_count" --argjson audit "$_audit_fail_count" \
+      --argjson unverified "${_unverified:-0}" \
+      '{command: "check",
+        status: (if ($audit + $stale + $unverified) > 0 then "failed" else "ok" end),
+        stale: $stale, audit_failures: $audit, unverified_tutorials: $unverified,
+        findings: .}' "$_lf"
+  else
+    jq -sc '{findings: .}' "$_lf" | render_audit_findings >&2
+    log "check: $_findings_total findings, $_stale_count stale, $_audit_fail_count audit failures, ${_unverified:-0} unverified tutorials"
+  fi
+
+  if [ "$_audit_fail_count" -gt 0 ]; then
+    exit "$EX_AUDIT_FAILED"
+  fi
+  if [ "$_stale_count" -gt 0 ]; then
+    exit "$EX_STALE"
+  fi
+  if [ "${_unverified:-0}" -gt 0 ]; then
+    exit "$EX_VERIFY_FAILED"
+  fi
+}
+
+# --- cost -----------------------------------------------------------------------
+
+cmd_cost() {
+  preflight 1
+  _m=$(manifest_read)
+  if [ "$DIATAXIS_JSON" -eq 1 ]; then
+    printf '%s' "$_m" | jq -c '{
+      command: "cost",
+      total_usd: ([.pages[].cost_usd // 0] | add // 0),
+      pages: (.pages | length),
+      by_mode: (.pages | group_by(.mode)
+        | map({mode: .[0].mode, pages: length, usd: ([.[].cost_usd // 0] | add)})),
+      by_model: (.pages | group_by(.model_used // .model_requested)
+        | map({model: (.[0].model_used // .[0].model_requested), pages: length,
+               usd: ([.[].cost_usd // 0] | add)}))
+    }'
+  else
+    printf '%s' "$_m" | jq -r '
+      "total: $\(([.pages[].cost_usd // 0] | add // 0) * 100 | round / 100) across \(.pages | length) pages",
+      (.pages | group_by(.mode)[] |
+        "  \(.[0].mode): \(length) pages, $\(([.[].cost_usd // 0] | add) * 100 | round / 100)")' >&2
+  fi
+}
+
+# --- clean ----------------------------------------------------------------------
+
+cmd_clean() {
+  preflight
+  if [ ! -f "$(plan_path)" ]; then
+    die "$EX_GENERIC" "no .diataxis/plan.json; nothing to clean against"
+  fi
+  _entries="$DIATAXIS_TMPDIR/clean-entries"
+  manifest_read | jq -c '.pages[]' >"$_entries"
+  while IFS= read -r _entry; do
+    _slug=$(printf '%s' "$_entry" | jq -r '.slug')
+    _in_plan=$(jq -r --arg slug "$_slug" \
+      '[.pages[] | select(.slug == $slug)] | length' "$(plan_path)")
+    if [ "$_in_plan" -gt 0 ]; then
+      continue
+    fi
+    _docpath=$(page_doc_path "$_slug")
+    if page_is_frozen "$_slug" "$_docpath"; then
+      verbose "keep $_slug: frozen"
+      continue
+    fi
+    _disk=$(page_disk_status "$_slug" "$_docpath")
+    if [ "$_disk" = "edited" ] && [ "$DIATAXIS_FORCE" -ne 1 ]; then
+      warn "keep $_slug: edited by hand since generation (--force to remove)"
+      continue
+    fi
+    if [ "$DIATAXIS_DRY_RUN" -eq 1 ]; then
+      log "would remove $_slug"
+      continue
+    fi
+    rm -f "$_docpath"
+    manifest_delete_page "$_slug"
+    log "removed $_slug"
+  done <"$_entries"
+  json_out '{"command":"clean","status":"ok"}'
+}
+
+# --- dispatch --------------------------------------------------------------------
+
+case "$subcommand" in
+  '') usage >&2; exit "$EX_GENERIC" ;;
+  doctor) cmd_doctor ;;
+  init) cmd_init ;;
+  plan) cmd_plan ;;
+  generate) cmd_generate ;;
+  audit) cmd_audit ;;
+  check) cmd_check ;;
+  cost) cmd_cost ;;
+  clean) cmd_clean ;;
+esac

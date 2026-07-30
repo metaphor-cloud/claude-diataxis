@@ -1,0 +1,10 @@
+#!/bin/sh
+# Command line entrypoint for key management.
+set -eu
+
+# Print usage and exit.
+usage() {
+  echo "usage: keytool rotate <id>"
+}
+
+usage

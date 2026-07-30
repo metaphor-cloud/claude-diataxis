@@ -1,0 +1,50 @@
+#!/bin/sh
+# Test stub for the claude CLI. Behavior is driven by environment variables:
+#   CLAUDE_STUB_VERSION      version string (default 2.1.220)
+#   CLAUDE_STUB_AUTH         ok | fail | absent (default ok)
+#   CLAUDE_STUB_AUTH_METHOD  method in auth status JSON (default subscription)
+#   CLAUDE_STUB_RESPONSE     file with the JSON to emit for print-mode calls
+#   CLAUDE_STUB_EXIT         exit code for print-mode calls (default 0)
+#   CLAUDE_STUB_STDERR       text printed to stderr for print-mode calls
+set -eu
+
+case "${1:-}" in
+  --version)
+    printf '%s (Claude Code)\n' "${CLAUDE_STUB_VERSION:-2.1.220}"
+    exit 0
+    ;;
+  auth)
+    mode="${CLAUDE_STUB_AUTH:-ok}"
+    if [ "$mode" = "absent" ]; then
+      printf "error: unknown command 'auth'\n" >&2
+      exit 1
+    fi
+    if [ "${2:-}" = "--help" ]; then
+      printf 'Usage: claude auth [options] [command]\n\nCommands:\n'
+      printf '  login [options]   Sign in\n'
+      printf '  logout            Log out\n'
+      printf '  status [options]  Show authentication status\n'
+      exit 0
+    fi
+    if [ "${2:-}" = "status" ]; then
+      if [ "$mode" = "ok" ]; then
+        printf '{"loggedIn":true,"method":"%s"}\n' "${CLAUDE_STUB_AUTH_METHOD:-subscription}"
+        exit 0
+      fi
+      printf '{"loggedIn":false}\n'
+      exit 1
+    fi
+    exit 0
+    ;;
+esac
+
+# Print-mode (-p) call.
+if [ -n "${CLAUDE_STUB_STDERR:-}" ]; then
+  printf '%s\n' "$CLAUDE_STUB_STDERR" >&2
+fi
+if [ -n "${CLAUDE_STUB_RESPONSE:-}" ] && [ -f "$CLAUDE_STUB_RESPONSE" ]; then
+  cat "$CLAUDE_STUB_RESPONSE"
+else
+  printf '{"type":"result","result":"ok","total_cost_usd":0.01}\n'
+fi
+exit "${CLAUDE_STUB_EXIT:-0}"

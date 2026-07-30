@@ -1,0 +1,15 @@
+Write the reference page "${PAGE_TITLE}" (slug: ${PAGE_SLUG}) for the repository "${WORKSPACE_NAME}".
+
+Source files for this page (paths relative to the repository root; read them with the Read tool):
+
+${SOURCE_PATHS}
+
+Symbol inventory for this page, one JSON record per line. Verify each signature against the source before documenting it; the inventory may be approximate:
+
+${SYMBOL_INVENTORY}
+
+Other pages in the documentation plan, for context (do not document their material here):
+
+${PLAN_PAGES}
+
+Return the complete page as structured output.

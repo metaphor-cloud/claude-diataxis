@@ -1,0 +1,4 @@
+# Documented shellcheck ignore list (see README.md, Testing section).
+# SC1090: adapters are sourced through a variable path by design; the adapter
+# set is closed (lib/adapters/*.sh) and each file is checked individually.
+disable=SC1090

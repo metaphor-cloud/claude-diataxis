@@ -1,0 +1,109 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "title",
+    "outcome",
+    "time_estimate_minutes",
+    "prerequisites",
+    "steps",
+    "citations"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "time_estimate_minutes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "instruction"
+        ],
+        "properties": {
+          "instruction": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "expected_output": {
+            "type": "string"
+          },
+          "checkpoint": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "next_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "slug",
+          "mode"
+        ],
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "tutorial",
+              "howto",
+              "reference",
+              "explanation"
+            ]
+          }
+        }
+      }
+    },
+    "citations": {
+      "$ref": "#/definitions/citations"
+    }
+  },
+  "definitions": {
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "line_range": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string",
+            "pattern": "^[-A-Za-z_$][-A-Za-z0-9_$.:#~]*$",
+            "description": "One identifier exactly as it appears in the source. Never a phrase or a comma-separated list; cite behavior with line_range instead."
+          }
+        }
+      }
+    }
+  }
+}

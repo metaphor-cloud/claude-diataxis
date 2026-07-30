@@ -1,0 +1,16 @@
+Write the tutorial "${PAGE_TITLE}" (slug: ${PAGE_SLUG}) for the repository "${WORKSPACE_NAME}".
+
+Why this page is in the plan: ${PAGE_RATIONALE}
+Audience: ${PAGE_AUDIENCE}
+
+Source files to ground the tutorial in (paths relative to the repository root; read them with the Read tool):
+
+${SOURCE_PATHS}
+
+Other pages in the documentation plan. Use these slugs for `next_steps`:
+
+${PLAN_PAGES}
+
+The harness will execute every bash, sh and console block in order in a fresh empty directory. They must all succeed. State expected output for every command.
+
+Return the complete tutorial as structured output.

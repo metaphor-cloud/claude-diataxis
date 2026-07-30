@@ -1,0 +1,43 @@
+# Docs freshness gate for pull requests. Copy into .github/workflows/.
+#
+# This job only runs `diataxis check`: it writes nothing and fails when any
+# page is stale or failing audit. Generation costs money and produces prose
+# that needs human review, so it belongs in a manually dispatched or scheduled
+# workflow, never on every push. See the README for that split.
+#
+# Requires a long-lived token in the CLAUDE_CODE_OAUTH_TOKEN secret
+# (generate one with: claude setup-token). check requires bare-capable auth
+# so runs are reproducible.
+
+name: docs-check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: diataxis check
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          set +e
+          out=$(diataxis/bin/diataxis --json check)
+          code=$?
+          set -e
+          # Surface findings as PR annotations via workflow commands.
+          printf '%s\n' "$out" | jq -r '
+            .findings[]? |
+            "::\(if .severity == "error" then "error" else "warning" end) file=\(.path)::[\(.rule)] \(.suggestion)"' \
+            || true
+          printf '%s\n' "$out" | jq . || printf '%s\n' "$out"
+          exit "$code"

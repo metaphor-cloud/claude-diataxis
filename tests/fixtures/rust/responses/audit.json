@@ -1,0 +1,1 @@
+{"type":"result","result":"done","total_cost_usd":0.005,"modelUsage":{"claude-sonnet-5":{"outputTokens":200}},"structured_output":{"findings":[{"path":"docs/how-to/rotate-a-signing-key.md","severity":"warning","rule":"unverified_code","excerpt":"echo rotate","suggestion":"State the expected result for the code block."}]}}

@@ -1,0 +1,19 @@
+# Include from your Makefile:  include diataxis/share/integrations/Makefile.diataxis
+DIATAXIS ?= diataxis/bin/diataxis
+
+.PHONY: docs docs-check docs-audit docs-plan docs-cost
+
+docs: ## Generate documentation from the plan
+	$(DIATAXIS) generate
+
+docs-plan: ## Refresh the documentation page inventory
+	$(DIATAXIS) plan
+
+docs-check: ## CI gate: fail if docs are stale or failing audit
+	$(DIATAXIS) check
+
+docs-audit: ## Diataxis compliance review of existing docs
+	$(DIATAXIS) audit
+
+docs-cost: ## Spend summary from the manifest
+	$(DIATAXIS) cost

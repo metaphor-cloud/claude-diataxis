@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["findings"],
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "severity", "rule", "excerpt", "suggestion"],
+        "properties": {
+          "path": {"type": "string"},
+          "severity": {"enum": ["error", "warning", "info"]},
+          "rule": {"enum": ["mode_mixing", "title_not_task_shaped", "unverified_code", "broken_citation", "stale", "orphan", "missing_reference"]},
+          "excerpt": {"type": "string"},
+          "suggestion": {"type": "string"}
+        }
+      }
+    }
+  }
+}

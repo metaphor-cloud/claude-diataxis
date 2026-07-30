@@ -1,0 +1,31 @@
+Produce the documentation page inventory for the repository "${WORKSPACE_NAME}".
+
+Documentable source files (read them selectively with Read, Grep and Glob; they are paths relative to the repository root):
+
+${SOURCE_FILES}
+
+Context files worth reading first (manifests, lockfiles, CI config, ADRs):
+
+${CONTEXT_FILES}
+
+Exported symbol summary (grep-derived, approximate):
+
+${SYMBOL_SUMMARY}
+
+Recent history:
+
+${GIT_LOG}
+
+Existing documentation files:
+
+${DOCS_TREE}
+
+Reference pages already derived mechanically by the harness (do not re-derive or duplicate these):
+
+${REFERENCE_SLUGS}
+
+The existing plan, if any (keep slugs stable for pages that should survive):
+
+${EXISTING_PLAN}
+
+Return the full page inventory as structured output.

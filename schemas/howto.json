@@ -1,0 +1,148 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "result"
+  ],
+  "properties": {
+    "result": {
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "required": [
+            "title",
+            "goal",
+            "assumes",
+            "steps",
+            "verification",
+            "citations"
+          ],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "goal": {
+              "type": "string"
+            },
+            "assumes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "instruction"
+                ],
+                "properties": {
+                  "instruction": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "language": {
+                    "type": "string"
+                  },
+                  "expected_result": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "verification": {
+              "type": "string"
+            },
+            "related": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "slug",
+                  "mode"
+                ],
+                "properties": {
+                  "slug": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "enum": [
+                      "tutorial",
+                      "howto",
+                      "reference",
+                      "explanation"
+                    ]
+                  }
+                }
+              }
+            },
+            "citations": {
+              "$ref": "#/definitions/citations"
+            }
+          },
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "required": [
+            "split"
+          ],
+          "properties": {
+            "split": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "slug",
+                  "title"
+                ],
+                "properties": {
+                  "slug": {
+                    "type": "string",
+                    "pattern": "^how-to/[a-z0-9][a-z0-9/-]*$"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "line_range": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string",
+            "pattern": "^[-A-Za-z_$][-A-Za-z0-9_$.:#~]*$",
+            "description": "One identifier exactly as it appears in the source. Never a phrase or a comma-separated list; cite behavior with line_range instead."
+          }
+        }
+      }
+    }
+  }
+}
