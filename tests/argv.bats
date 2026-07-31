@@ -104,3 +104,39 @@ setup() {
   run dtx --dry-run --concurrency 9 generate --mode howto
   [ "$status" -eq 0 ]
 }
+
+@test "per-mode max_turns override reaches the argv" {
+  echo '{"version":1,"models":{"howto":{"model":"claude-sonnet-5","effort":"medium","max_turns":12}}}' \
+    >"$WORK/diataxis.config.json"
+  run dtx --dry-run generate --mode howto
+  [ "$status" -eq 0 ]
+  printf '%s\n' "$output" | grep -A1 -x -- '--max-turns' | grep -qx '12'
+}
+
+@test "reference_bulk defaults to fewer turns" {
+  run sh -c "DIATAXIS_ROOT='$REPO_ROOT'; . '$REPO_ROOT/lib/preamble.sh'; . '$REPO_ROOT/lib/config.sh'; \
+    DIATAXIS_CONFIG='' DIATAXIS_WORKSPACE='$WORK' DIATAXIS_BUDGET_USD='' config_load 1; \
+    cfg_max_turns reference_bulk; cfg_max_turns howto"
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "12" ]
+  [ "${lines[1]}" = "24" ]
+}
+
+@test "generate --priority limits pages to that priority and better" {
+  write_plan '{"pages":[
+    {"slug":"how-to/first-thing","mode":"howto","title":"Do the first thing","rationale":"r","sources":["src/lib.rs"],"priority":1,"audience":"developer"},
+    {"slug":"how-to/later-thing","mode":"howto","title":"Do the later thing","rationale":"r","sources":["src/lib.rs"],"priority":3,"audience":"developer"}
+  ]}'
+  run dtx --dry-run generate --priority 1
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"[1/1] how-to/first-thing"* ]]
+  [[ "$output" != *"how-to/later-thing"* ]]
+  run dtx --dry-run generate
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"how-to/later-thing"* ]]
+}
+
+@test "invalid --priority is rejected" {
+  run dtx --dry-run generate --priority 9
+  [ "$status" -eq 1 ]
+}

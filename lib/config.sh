@@ -182,6 +182,23 @@ cfg_settings_file() {
   cfg -r '.settings_file // empty'
 }
 
+# cfg_max_turns MODE: per-call turn cap. Overridable per mode via
+# models.MODE.max_turns. The bulk pass gets its symbols inline in the
+# prompt, so it needs far fewer exploration turns than the default.
+# Deliberately not part of the models default block, so adding this feature
+# does not change the hashed model config and stale every existing page.
+cfg_max_turns() {
+  _mt=$(cfg -r ".models[\"$1\"].max_turns // empty")
+  if [ -n "$_mt" ]; then
+    printf '%s\n' "$_mt"
+    return 0
+  fi
+  case "$1" in
+    reference_bulk) printf '12\n' ;;
+    *) printf '24\n' ;;
+  esac
+}
+
 # cfg_all_models: unique model ids configured, one per line.
 cfg_all_models() {
   cfg -r '.models | to_entries[] | if (.value | type) == "object" then .value.model else .value end' \

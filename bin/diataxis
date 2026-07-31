@@ -37,8 +37,10 @@ subcommands:
   doctor                 environment and auth checks, exit 0 or 1
   init                   detect language, write diataxis.config.json, scaffold docs/
   plan                   produce or refresh the page inventory, no prose written
-  generate [--mode M] [--page PATH] [--force]
-                         generate pages from the plan
+  generate [--mode M] [--page PATH] [--priority N] [--force]
+                         generate pages from the plan (--priority N limits
+                         to plan priority N and better; spend budget on
+                         what matters first)
   audit [--page PATH]    Diataxis compliance review of existing docs
   check                  CI mode: non-zero if any page is stale or failing audit
   cost                   spend summary from the manifest
@@ -69,6 +71,7 @@ DIATAXIS_NO_COLOR=0
 DIATAXIS_FORCE=0
 DIATAXIS_MODE=all
 DIATAXIS_PAGE=''
+DIATAXIS_PRIORITY=0
 subcommand=''
 
 need_value() {
@@ -89,6 +92,7 @@ while [ $# -gt 0 ]; do
     --force)       DIATAXIS_FORCE=1; shift ;;
     --mode)        need_value "$1" $#; DIATAXIS_MODE=$2; shift 2 ;;
     --page)        need_value "$1" $#; DIATAXIS_PAGE=$2; shift 2 ;;
+    --priority)    need_value "$1" $#; DIATAXIS_PRIORITY=$2; shift 2 ;;
     -h|--help)     usage; exit 0 ;;
     doctor|init|plan|generate|audit|check|cost|clean)
       if [ -n "$subcommand" ]; then
@@ -107,6 +111,10 @@ setup_colors
 case "$DIATAXIS_MODE" in
   tutorial|howto|reference|explanation|all) ;;
   *) die "$EX_GENERIC" "--mode must be tutorial, howto, reference, explanation, or all" ;;
+esac
+case "$DIATAXIS_PRIORITY" in
+  0|1|2|3) ;;
+  *) die "$EX_GENERIC" "--priority must be 1, 2 or 3" ;;
 esac
 case "$DIATAXIS_CONCURRENCY" in
   ''|*[!0-9]*) die "$EX_GENERIC" "--concurrency must be a positive integer" ;;
@@ -465,7 +473,7 @@ cmd_plan() {
   _task=$(render_template "$DIATAXIS_ROOT/prompts/task/plan.tmpl")
 
   _out="$DIATAXIS_TMPDIR/plan-out.json"
-  claude_run plan 24 "$_out" "$_task"
+  claude_run plan "$(cfg_max_turns plan)" "$_out" "$_task"
   if [ "$DIATAXIS_DRY_RUN" -eq 1 ]; then
     return 0
   fi
@@ -506,9 +514,11 @@ plan_pages_filtered() {
   if [ ! -f "$(plan_path)" ]; then
     die "$EX_GENERIC" "no .diataxis/plan.json; run: diataxis plan"
   fi
-  jq -c --arg mode "$DIATAXIS_MODE" --arg page "$DIATAXIS_PAGE" --arg docs "$DIATAXIS_DOCS_DIR" '
+  jq -c --arg mode "$DIATAXIS_MODE" --arg page "$DIATAXIS_PAGE" \
+    --arg docs "$DIATAXIS_DOCS_DIR" --argjson prio "$DIATAXIS_PRIORITY" '
     .pages[]
     | select($mode == "all" or .mode == $mode)
+    | select($prio == 0 or (.priority // 3) <= $prio)
     | select($page == ""
         or .slug == $page
         or ($docs + "/" + .slug + ".md") == $page
@@ -615,7 +625,7 @@ generate_one_page() {
 
   _task=$(render_template "$DIATAXIS_ROOT/prompts/task/$(claude_files_mode "$_call_mode").tmpl")
   _out="$_odir/claude-out.json"
-  claude_run "$_call_mode" 24 "$_out" "$_task"
+  claude_run "$_call_mode" "$(cfg_max_turns "$_call_mode")" "$_out" "$_task"
   if [ "$DIATAXIS_DRY_RUN" -eq 1 ]; then
     jq -nc --arg slug "$_slug" '{slug: $slug, status: "dry_run"}' >"$_odir/meta.json"
     return 0
@@ -1014,7 +1024,7 @@ model_findings() {
     export AUDIT_PAGE_PATH AUDIT_PAGE_MODE EXECUTABLE_LANGUAGES
     _task=$(render_template "$DIATAXIS_ROOT/prompts/task/audit.tmpl")
     _out="$DIATAXIS_TMPDIR/audit-$(printf '%s' "$_slug" | tr '/' '-').json"
-    claude_run audit 24 "$_out" "$_task"
+    claude_run audit "$(cfg_max_turns audit)" "$_out" "$_task"
     if [ "$DIATAXIS_DRY_RUN" -eq 1 ]; then
       continue
     fi

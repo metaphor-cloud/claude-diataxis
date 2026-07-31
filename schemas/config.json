@@ -75,7 +75,8 @@
       "required": ["model"],
       "properties": {
         "model": {"type": "string"},
-        "effort": {"type": "string", "enum": ["low", "medium", "high", "xhigh", "max"]}
+        "effort": {"type": "string", "enum": ["low", "medium", "high", "xhigh", "max"]},
+        "max_turns": {"type": "integer"}
       }
     }
   }

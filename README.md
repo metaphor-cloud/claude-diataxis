@@ -59,6 +59,8 @@ diataxis clean                  # remove generated pages no longer in the plan
 Global flags: `--config PATH`, `--budget-usd N`, `--concurrency N` (default 1,
 cap 4), `--dry-run`, `--verbose`, `--json`, `--no-color`. `--mode` accepts
 `tutorial`, `howto`, `reference`, `explanation`, or `all` (default).
+`generate --priority N` limits generation to plan pages of priority N and
+better (1 is highest), so a budgeted run spends on what matters first.
 
 `--dry-run` prints the exact `claude` argv (first line `claude`, one argument
 per line, blank-line terminated) without executing anything. Every test that
@@ -194,11 +196,49 @@ Cost: each call's `total_cost_usd` accumulates in the manifest.
 `--budget-usd` (or config `budget_usd`, default 50) refuses to start a call
 once the run's spend reaches the budget, reporting the shortfall rather than
 half-generating, and the remaining budget is also passed per call as
-`--max-budget-usd` as a second belt. Sizing guide: a full generation of a
-medium repository plan (about 40 pages at the default routing) lands around
-25 to 35 dollars, dominated by the opus explanation and tutorial pages.
-Completed pages are recorded in the manifest, so a run that dies on budget
-resumes where it left off.
+`--max-budget-usd` as a second belt. Completed pages are recorded in the
+manifest, so a run that dies on budget resumes where it left off.
+
+### Understanding and managing cost
+
+What the numbers mean:
+
+- The harness accumulates the CLI's own `total_cost_usd`, which includes
+  prompt-cache creation. Every call carries the Claude Code preamble
+  (roughly 30k tokens), so expect a baseline of a few cents per call before
+  any real work. On subscription auth the figure is notional API cost, not
+  a bill.
+- The budget is **per run**, not per project. Hitting it is not a failure:
+  re-running `generate` continues from the manifest with a fresh allowance.
+  A large plan is expected to take several budgeted runs.
+- A call killed mid-flight by the per-call `--max-budget-usd` belt reports
+  no usage, so its spend is not recorded. Treat manifest totals as a floor.
+
+What actually drives cost, in order:
+
+1. **Page count.** Each page is a fresh agentic session that explores the
+   repository. Review `.diataxis/plan.json` and cut or demote pages before
+   generating; the plan is the cheapest place to save money. The plan
+   prompt is instructed to be economical and to use priorities honestly.
+2. **Opus pages.** Explanation and tutorial pages run 1 to 2 dollars each
+   at the default routing. `generate --priority 1` first, then widen.
+   Routing explanation to `claude-sonnet-5` in the models block is a
+   legitimate trade if your budget is tight.
+3. **Exploration turns.** `models.MODE.max_turns` caps how long a call can
+   wander (default 24; the reference bulk pass defaults to 12 because its
+   symbols arrive inline). Lowering howto/reference to 12 to 16 turns cuts
+   cost on repositories with well-named sources.
+4. **Ambient context.** Without `--bare` (subscription auth), your global
+   and project `CLAUDE.md`, skills and plugins ride along in every call.
+   CI runs with `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` are
+   cheaper per call as well as reproducible.
+5. **Repair loops.** A tutorial that cannot verify in a bare sandbox burns
+   its Opus repair attempts every regeneration. If your tutorials need
+   project dependencies, configure `verify.sandbox_command`, or accept
+   `verified: false` with `verify.required: false`.
+6. **Stale cascades.** Editing a source file regenerates every page that
+   lists it. Keep plan `sources` narrow, and use `generate --page` while
+   iterating on one page.
 
 ### Audit and check
 
