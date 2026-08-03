@@ -86,20 +86,6 @@ sha256_stream() {
 
 sha256_file() { sha256_stream <"$1"; }
 
-# b64_decode: decode base64 from stdin. BSD base64 historically only takes -D;
-# GNU and current macOS take -d. Probe once.
-b64_decode() {
-  if [ -z "${DIATAXIS_B64_FLAG:-}" ]; then
-    if printf 'b2s=' | base64 -d >/dev/null 2>&1; then
-      DIATAXIS_B64_FLAG='-d'
-    else
-      DIATAXIS_B64_FLAG='-D'
-    fi
-    export DIATAXIS_B64_FLAG
-  fi
-  base64 "$DIATAXIS_B64_FLAG"
-}
-
 sha256_string() { printf '%s' "$1" | sha256_stream; }
 
 iso_now() { date -u +%Y-%m-%dT%H:%M:%SZ; }

@@ -528,25 +528,30 @@ plan_pages_filtered() {
 
 # tutorial_extract_blocks STRUCTURED WORKDIR: write step-N.sh scripts for every
 # executable fenced block, replacing any scripts from a previous attempt.
+# Block code is written by a jq redirect and never transits a shell variable,
+# so a tutorial containing tabs, newlines or quotes in its code cannot alter
+# how that code is extracted.
 tutorial_extract_blocks() {
   rm -f "$2"/step-*.sh
   _langs=$(cfg '.verify.executable_languages')
-  printf '%s' "$1" | jq -r --argjson langs "$_langs" '
+  # Indices of the executable blocks, one per line. jq emits array indices, so
+  # these are integers and the unquoted expansion below cannot split on
+  # anything the tutorial controls.
+  _idxs=$(printf '%s' "$1" | jq -r --argjson langs "$_langs" '
     .steps | to_entries[]
     | (.value.language // "") as $lang
     | select(.value.code and (($langs | index($lang)) != null))
-    | [(.key | tostring), $lang, .value.code]
-    | map(@base64) | join("\t")' \
-  | while IFS='	' read -r _k64 _l64 _c64; do
-      _idx=$(printf '%s' "$_k64" | b64_decode)
-      _lang=$(printf '%s' "$_l64" | b64_decode)
-      if [ "$_lang" = "console" ]; then
-        # In console blocks only lines starting with "$ " are commands.
-        printf '%s' "$_c64" | b64_decode | sed -n 's/^\$ //p' >"$2/step-$_idx.sh"
-      else
-        printf '%s' "$_c64" | b64_decode >"$2/step-$_idx.sh"
-      fi
-    done
+    | .key')
+  for _idx in $_idxs; do
+    # In console blocks only lines starting with "$ " are commands, on the
+    # convention that a transcript interleaves commands with their output.
+    # jq applies that filter so the shell never handles the code itself.
+    printf '%s' "$1" | jq -r --argjson i "$_idx" '
+      .steps[$i]
+      | if (.language // "") == "console"
+        then (.code | split("\n") | map(select(startswith("$ ")) | .[2:]) | join("\n"))
+        else .code end' >"$2/step-$_idx.sh"
+  done
 }
 
 # tutorial_verify STRUCTURED WORKDIR: run every executable block in order in

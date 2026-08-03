@@ -6,7 +6,7 @@ REPO_ROOT="$(cd "$TESTS_DIR/.." && pwd)"
 DIATAXIS_BIN="$REPO_ROOT/bin/diataxis"
 
 SANDBOX_TOOLS="jq git awk sed grep sort head tail find wc tr cut date mktemp
-basename dirname cat cp mv rm mkdir ls base64 xargs shasum sha256sum uname env
+basename dirname cat cp mv rm mkdir ls xargs shasum sha256sum uname env
 sh bash touch chmod true false"
 
 # make_sandbox [tools to omit...]: build the sandbox PATH directory.

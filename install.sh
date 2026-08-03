@@ -47,6 +47,9 @@ for d in bin lib prompts schemas share; do
 done
 cp "$src/install.sh" "$DEST/install.sh" 2>/dev/null || true
 chmod +x "$DEST/bin/diataxis"
+# The starter config points verify.sandbox_command at this wrapper, and the
+# harness execs it directly, so it has to stay executable through vendoring.
+chmod +x "$DEST/share/sandbox/verify-sandbox.sh"
 
 if [ ! -f "$TARGET/diataxis.config.json" ]; then
   cp "$src/share/diataxis.config.example.json" "$TARGET/diataxis.config.json"

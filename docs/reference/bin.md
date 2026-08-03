@@ -532,7 +532,7 @@ Source: `bin/diataxis` (lines 505-517)
 tutorial_extract_blocks() STRUCTURED WORKDIR
 ```
 
-Write step-N.sh scripts for every executable fenced code block in a tutorial, replacing scripts from prior attempts. Extracts commands from console blocks (lines starting with $ ).
+Write step-N.sh scripts for every executable fenced code block in a tutorial, replacing scripts from prior attempts. Each block's code is redirected straight from jq into its script rather than passed through a shell variable, so tabs, newlines and quotes in tutorial code cannot alter extraction. Extracts commands from console blocks (lines starting with $ ).
 
 | Parameter | Type | Description |
 | --- | --- | --- |

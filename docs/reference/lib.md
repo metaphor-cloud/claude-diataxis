@@ -671,20 +671,6 @@ Returns: The bare hex digest, printed to stdout.
 
 Source: `lib/preamble.sh` (lines 87)
 
-## `b64_decode`
-
-*function*
-
-```
-b64_decode
-```
-
-Decodes base64 from stdin, probing once whether the installed `base64` takes `-d` (GNU/current macOS) or `-D` (historical BSD) and caching the result in `$DIATAXIS_B64_FLAG`.
-
-Returns: The decoded bytes, printed to stdout.
-
-Source: `lib/preamble.sh` (lines 91-101)
-
 ## `sha256_string`
 
 *function*

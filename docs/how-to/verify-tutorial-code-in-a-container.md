@@ -31,25 +31,37 @@ Run a tutorial's executable code blocks inside a container instead of an ephemer
 
    Expected result: You can see the current mode, max_repairs and executable_languages, or confirm the block is missing and defaults apply.
 
-2. Add sandbox_command, a string the harness runs with the step script's path appended as its final argument. Point it at a container that mounts the harness's temporary directory so the script inside the container resolves to the same path the harness passes.
+   Note that `mode: "sandbox"` by itself confines nothing. It selects verification in a wiped ephemeral directory; without sandbox_command the step scripts run on the host with your full authority. The rest of this guide is what supplies the actual boundary.
+
+2. Add sandbox_command, a string the harness runs with the step script's path appended as its final argument. Unless you specifically need a container image, point it at the wrapper shipped with the harness, which is what the starter config already does.
 
    ```json
    "verify": {
      "mode": "sandbox",
      "required": true,
      "max_repairs": 2,
-     "sandbox_command": "docker run --rm -v /tmp:/tmp -w /tmp my-verify-image sh",
+     "sandbox_command": "$DIATAXIS_ROOT/share/sandbox/verify-sandbox.sh",
      "executable_languages": ["bash", "sh", "console"]
    }
    ```
 
+   `$DIATAXIS_ROOT` is exported by the harness and points at its own directory, so this value keeps working whether the harness is a checkout or vendored into `diataxis/`. The wrapper uses `sandbox-exec` on macOS and `bwrap` on Linux, needs no container runtime, and denies network access, writes outside the verification directory, writes into the harness's own run directory, and reads of common credential paths. If neither mechanism is present it exits 78 without running the step, rather than falling back to unconfined execution; on Linux that usually means installing `bubblewrap`.
+
    Expected result: diataxis.config.json still validates: sandbox_command is typed string or null in schemas/config.json, so a bad value fails config_load with exit code 2, JSON pointer /verify/sandbox_command.
 
-3. Match the mount to where the harness actually creates its working directories. The harness's per-run temp directory is created under $TMPDIR (or /tmp if unset); each step script for a tutorial under verification lives inside that tree. Mount the same root your shell's TMPDIR resolves to, not a hardcoded /tmp, if your environment sets TMPDIR elsewhere (for example under macOS's per-user /var/folders path).
+3. Use a container instead if your tutorials need a toolchain that has to pre-exist. Point sandbox_command at a container that mounts the harness's temporary directory so the script inside the container resolves to the same path the harness passes.
+
+   ```json
+   "sandbox_command": "docker run --rm -v /tmp:/tmp -w /tmp my-verify-image sh"
+   ```
+
+   Expected result: The step script path the harness appends resolves identically inside the container.
+
+4. Match the mount to where the harness actually creates its working directories. The harness's per-run temp directory is created under $TMPDIR (or /tmp if unset); each step script for a tutorial under verification lives inside that tree. Mount the same root your shell's TMPDIR resolves to, not a hardcoded /tmp, if your environment sets TMPDIR elsewhere (for example under macOS's per-user /var/folders path).
 
    Expected result: echo "${TMPDIR:-/tmp}" tells you the path to mount; the container's sh must be able to read and execute a file at that same absolute path.
 
-4. If your tutorials contain fenced blocks in languages beyond bash, sh and console, for example python, add those languages to executable_languages so tutorial_verify actually runs them instead of skipping them silently. Only add a language your sandbox image has an interpreter for.
+5. If your tutorials contain fenced blocks in languages beyond bash, sh and console, for example python, add those languages to executable_languages so tutorial_verify actually runs them instead of skipping them silently. Only add a language your sandbox image has an interpreter for.
 
    ```json
    "executable_languages": ["bash", "sh", "console", "python"]
@@ -57,7 +69,7 @@ Run a tutorial's executable code blocks inside a container instead of an ephemer
 
    Expected result: A python-tagged fenced block in a tutorial is now extracted to a step script and executed through sandbox_command.
 
-5. Tune max_repairs, the cap on repair attempts when a step script exits non-zero. Lower it if failures should surface to a human sooner; raise it if your container needs more attempts for the model to adapt to constraints (like an unavailable package) that a plain host run would not hit.
+6. Tune max_repairs, the cap on repair attempts when a step script exits non-zero. Lower it if failures should surface to a human sooner; raise it if your container needs more attempts for the model to adapt to constraints (like an unavailable package) that a plain host run would not hit.
 
    ```json
    "max_repairs": 1
@@ -65,7 +77,7 @@ Run a tutorial's executable code blocks inside a container instead of an ephemer
 
    Expected result: A tutorial that still fails after 1 repair attempt is written with verified: false frontmatter instead of retrying a second time.
 
-6. Regenerate a tutorial page to exercise the new sandbox_command, forcing regeneration since the page is presumably already up to date.
+7. Regenerate a tutorial page to exercise the new sandbox_command, forcing regeneration since the page is presumably already up to date.
 
    ```sh
    diataxis/bin/diataxis generate --mode tutorial --force --verbose

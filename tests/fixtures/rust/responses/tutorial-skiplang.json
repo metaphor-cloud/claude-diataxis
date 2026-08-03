@@ -1,0 +1,34 @@
+{
+  "type": "result",
+  "result": "done",
+  "total_cost_usd": 0.03,
+  "modelUsage": {
+    "claude-opus-5": {
+      "outputTokens": 800
+    }
+  },
+  "structured_output": {
+    "title": "Get started with fixkeys",
+    "outcome": "a non-executable block left alone",
+    "time_estimate_minutes": 5,
+    "prerequisites": [
+      "a POSIX shell"
+    ],
+    "steps": [
+      {
+        "instruction": "A non-executable language is skipped, not run as shell.",
+        "code": "import sys; sys.exit(1)\n",
+        "language": "python",
+        "expected_output": "",
+        "checkpoint": "never executed"
+      }
+    ],
+    "next_steps": [],
+    "citations": [
+      {
+        "path": "src/lib.rs",
+        "symbol": "rotate_key"
+      }
+    ]
+  }
+}

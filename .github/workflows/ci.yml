@@ -19,7 +19,7 @@ jobs:
       - name: shellcheck
         run: |
           sudo apt-get update -q && sudo apt-get install -y shellcheck
-          shellcheck -s sh bin/diataxis lib/*.sh lib/adapters/*.sh tests/helpers/claude install.sh
+          shellcheck -s sh bin/diataxis lib/*.sh lib/adapters/*.sh tests/helpers/claude install.sh share/sandbox/verify-sandbox.sh
 
   bats:
     runs-on: ubuntu-latest

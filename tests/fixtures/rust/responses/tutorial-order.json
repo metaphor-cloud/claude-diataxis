@@ -1,0 +1,111 @@
+{
+  "type": "result",
+  "result": "done",
+  "total_cost_usd": 0.03,
+  "modelUsage": {
+    "claude-opus-5": {
+      "outputTokens": 800
+    }
+  },
+  "structured_output": {
+    "title": "Get started with fixkeys",
+    "outcome": "steps run in numeric order",
+    "time_estimate_minutes": 5,
+    "prerequisites": [
+      "a POSIX shell"
+    ],
+    "steps": [
+      {
+        "instruction": "Record step 0.",
+        "code": "printf '%s\\n' 0 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 1.",
+        "code": "printf '%s\\n' 1 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 2.",
+        "code": "printf '%s\\n' 2 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 3.",
+        "code": "printf '%s\\n' 3 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 4.",
+        "code": "printf '%s\\n' 4 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 5.",
+        "code": "printf '%s\\n' 5 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 6.",
+        "code": "printf '%s\\n' 6 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 7.",
+        "code": "printf '%s\\n' 7 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 8.",
+        "code": "printf '%s\\n' 8 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 9.",
+        "code": "printf '%s\\n' 9 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Record step 10.",
+        "code": "printf '%s\\n' 10 >> order.txt",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "recorded"
+      },
+      {
+        "instruction": "Assert the steps ran in numeric order.",
+        "code": "[ \"$(cat order.txt)\" = \"$(printf '0\\n1\\n2\\n3\\n4\\n5\\n6\\n7\\n8\\n9\\n10\\n')\" ]",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "order matches"
+      }
+    ],
+    "next_steps": [],
+    "citations": [
+      {
+        "path": "src/lib.rs",
+        "symbol": "rotate_key"
+      }
+    ]
+  }
+}

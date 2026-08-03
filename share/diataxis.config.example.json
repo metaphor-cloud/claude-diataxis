@@ -21,6 +21,7 @@
     "mode": "sandbox",
     "required": true,
     "max_repairs": 2,
+    "sandbox_command": "$DIATAXIS_ROOT/share/sandbox/verify-sandbox.sh",
     "executable_languages": ["bash", "sh", "console"]
   },
   "audit": {"fail_on": ["error"], "model_audit_in_check": false},

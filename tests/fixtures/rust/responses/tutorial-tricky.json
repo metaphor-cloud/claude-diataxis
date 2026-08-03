@@ -1,0 +1,34 @@
+{
+  "type": "result",
+  "result": "done",
+  "total_cost_usd": 0.03,
+  "modelUsage": {
+    "claude-opus-5": {
+      "outputTokens": 800
+    }
+  },
+  "structured_output": {
+    "title": "Get started with fixkeys",
+    "outcome": "tricky characters surviving extraction",
+    "time_estimate_minutes": 5,
+    "prerequisites": [
+      "a POSIX shell"
+    ],
+    "steps": [
+      {
+        "instruction": "Tabs, quotes, substitution and newlines survive extraction.",
+        "code": "tab_line=\"a\tb\"\n[ \"$tab_line\" = \"$(printf 'a\\tb')\" ]\necho \"double \\\"quoted\\\", 'single', and $(echo substituted)\"\nprintf 'multi\\nline\\n' > ml.txt\n[ \"$(wc -l < ml.txt)\" -eq 2 ]\n",
+        "language": "bash",
+        "expected_output": "",
+        "checkpoint": "comparisons succeed"
+      }
+    ],
+    "next_steps": [],
+    "citations": [
+      {
+        "path": "src/lib.rs",
+        "symbol": "rotate_key"
+      }
+    ]
+  }
+}

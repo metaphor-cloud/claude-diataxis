@@ -172,8 +172,9 @@ Markdown through a shell template, and writes the page plus a manifest entry.
   next `generate` produces the split pages.
 - Tutorials get a mandatory verification pass: every fenced block whose
   language is in `verify.executable_languages` is executed in order in an
-  ephemeral directory (or through `verify.sandbox_command`, e.g. a container
-  wrapper). On failure a repair call runs with the failure output appended,
+  ephemeral directory, wrapped by `verify.sandbox_command` so model-authored
+  shell runs confined rather than with your full authority. On failure a
+  repair call runs with the failure output appended,
   capped at `verify.max_repairs` (default 2). Unverified tutorials are
   written with `verified: false` frontmatter and `check` fails on them unless
   `verify.required` is false.
@@ -233,8 +234,10 @@ What actually drives cost, in order:
    CI runs with `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` are
    cheaper per call as well as reproducible.
 5. **Repair loops.** A tutorial that cannot verify in a bare sandbox burns
-   its Opus repair attempts every regeneration. If your tutorials need
-   project dependencies, configure `verify.sandbox_command`, or accept
+   its Opus repair attempts every regeneration. The default sandbox denies
+   network access, so a tutorial that fetches anything will fail on every
+   attempt. If your tutorials need project dependencies or the network, point
+   `verify.sandbox_command` at a container image that provides them, or accept
    `verified: false` with `verify.required: false`.
 6. **Stale cascades.** Editing a source file regenerates every page that
    lists it. Keep plan `sources` narrow, and use `generate --page` while
@@ -266,9 +269,19 @@ pointer. See `share/diataxis.config.example.json` for every key and default.
 - `voice.style_guide`: `google` or `microsoft`; injects sentence-case
   headings, second person, present tense, no "simply" or "just", spelled-out
   first-use acronyms into every system prompt.
-- `verify.sandbox_command`: optional wrapper for tutorial verification
-  (receives the script path as its argument), e.g. a `docker run` wrapper.
-  Default is an ephemeral directory on the host.
+- `verify.sandbox_command`: wrapper for tutorial verification (receives the
+  step script path as its final argument). The starter config points this at
+  `$DIATAXIS_ROOT/share/sandbox/verify-sandbox.sh`, which confines each step
+  with `sandbox-exec` on macOS or `bwrap` on Linux: no network, no writes
+  outside the verification directory, no writes into the harness's own run
+  directory, and no reads of common credential paths. It exits 78 without
+  running the step if neither mechanism is available rather than falling back
+  to unconfined execution. A `docker run` wrapper works too. Set it to `null`
+  and verification runs on the host with your full authority.
+
+  `verify.mode: "sandbox"` on its own does not confine anything: it selects
+  verification in a wiped ephemeral directory, and `sandbox_command` is what
+  supplies the boundary.
 
 ## Language adapters
 
@@ -314,7 +327,7 @@ honest.
 ## Testing
 
 ```sh
-shellcheck -s sh bin/diataxis lib/*.sh lib/adapters/*.sh tests/helpers/claude install.sh
+shellcheck -s sh bin/diataxis lib/*.sh lib/adapters/*.sh tests/helpers/claude install.sh share/sandbox/verify-sandbox.sh
 bats tests/
 ```
 
@@ -323,6 +336,13 @@ bats tests/
   code, config validation, hash staleness, cost accumulation, human-edit
   protection, tutorial verification and repair, the how-to split contract,
   and golden `plan.json` comparisons for all four fixture repos.
+- `tests/tutorial.bats` asserts step extraction end to end: the step scripts
+  themselves fail unless their code arrived byte-intact, so a page reaching
+  `verified: true` is the proof. It also drives
+  `share/sandbox/verify-sandbox.sh` directly to check that writes outside the
+  verification directory, writes into the harness run directory, and network
+  access are all denied, and that the wrapper fails closed. Those cases skip
+  on hosts with neither `sandbox-exec` nor `bwrap`.
 - One live smoke test is opt-in behind `DIATAXIS_LIVE=1`, capped at
   `--budget-usd 0.50`.
 - Shellcheck ignore list (documented): `SC1090` (adapters are sourced through

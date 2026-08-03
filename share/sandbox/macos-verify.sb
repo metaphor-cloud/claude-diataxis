@@ -1,0 +1,79 @@
+;; Sandbox profile for tutorial step verification on macOS, used by
+;; share/sandbox/verify-sandbox.sh via sandbox-exec -f.
+;;
+;; Four parameters are supplied with -D:
+;;   VERIFY_DIR  - the only directory the step script may write to
+;;   HOME_DIR    - the invoking user's home, so credential paths can be denied
+;;   DARWIN_TMP  - the per-user Darwin temp dir (getconf DARWIN_USER_TEMP_DIR)
+;;   HARNESS_TMP - the harness's own run directory, carved back out of DARWIN_TMP
+;;
+;; The goal is containment of model-authored shell, not a security boundary
+;; against a determined attacker: sandbox-exec is deprecated by Apple and
+;; profile escapes are known. It stops a generated tutorial step from reaching
+;; the network or writing outside its scratch directory, which is the actual
+;; risk being managed here.
+
+(version 1)
+(deny default)
+
+;; No network, in any form. A tutorial that needs to fetch something must fail
+;; verification rather than silently reach out.
+(deny network*)
+
+;; Running the step script means forking and exec'ing real tools.
+(allow process-fork)
+(allow process-exec)
+(allow signal (target self))
+(allow sysctl-read)
+(allow mach-lookup)
+
+;; Reads stay broad: the dynamic linker, dyld's shared cache and every tool the
+;; step legitimately runs need them, and denying reads wholesale makes even
+;; /bin/sh fail to start. Credential paths are carved back out below.
+(allow file-read*)
+(allow file-read-metadata)
+
+;; Deny the things worth stealing. These come after the broad allow, and the
+;; last matching rule wins in a sandbox profile.
+(deny file-read* (subpath (string-append (param "HOME_DIR") "/.ssh")))
+(deny file-read* (subpath (string-append (param "HOME_DIR") "/.aws")))
+(deny file-read* (subpath (string-append (param "HOME_DIR") "/.gnupg")))
+(deny file-read* (subpath (string-append (param "HOME_DIR") "/.config/gh")))
+(deny file-read* (subpath (string-append (param "HOME_DIR") "/.claude")))
+(deny file-read* (subpath (string-append (param "HOME_DIR") "/.docker")))
+(deny file-read* (literal (string-append (param "HOME_DIR") "/.netrc")))
+(deny file-read* (literal (string-append (param "HOME_DIR") "/.git-credentials")))
+(deny file-read* (literal (string-append (param "HOME_DIR") "/.npmrc")))
+
+;; The three write rules below are order-dependent: the last rule matching a
+;; path wins, so they run widest to narrowest.
+
+;; 1. Deliberate carve-out. macOS mktemp ignores TMPDIR and resolves the
+;; per-user Darwin temp dir through confstr(), so denying it breaks the ordinary
+;; t=$(mktemp) idiom that tutorial shell is full of. A scratch directory the
+;; user already owns is a smaller concession than users switching the sandbox
+;; off entirely.
+(allow file-write* (subpath (param "DARWIN_TMP")))
+
+;; 2. But the harness's own run directory lives inside that same Darwin temp
+;; dir, and it holds every other page's step scripts and intermediate JSON.
+;; Leaving it writable would let one tutorial's step rewrite the next page's
+;; script or its generated content, which is a worse hole than the one the
+;; sandbox closes. Carve it back out.
+(deny file-write* (subpath (param "HARNESS_TMP")))
+
+;; 3. The ephemeral verification directory, which sits under HARNESS_TMP, is the
+;; one place the step is meant to write. TMPDIR is redirected inside it by the
+;; wrapper so well-behaved temp use lands here rather than in DARWIN_TMP.
+(allow file-write* (subpath (param "VERIFY_DIR")))
+
+;; The usual write-only devices, so redirection and terminal output work.
+(allow file-write-data
+  (literal "/dev/null")
+  (literal "/dev/zero")
+  (literal "/dev/stdout")
+  (literal "/dev/stderr")
+  (literal "/dev/tty"))
+(allow file-ioctl
+  (literal "/dev/null")
+  (literal "/dev/tty"))
